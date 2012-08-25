@@ -1,3 +1,4 @@
+-- ludumdare 2012-08 ghoulsblade generogue
 gKeyPressed = {}
 
 function GfxSetPixelArtFilter (gfx) gfx:setFilter("nearest","nearest") return gfx end
