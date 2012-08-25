@@ -1,4 +1,7 @@
 -- ludumdare 2012-08 ghoulsblade generogue
+
+love.filesystem.load("lib.oop.lua")()
+
 gKeyPressed = {}
 gTitleScreen = true
 kTileSize = 64
