@@ -29,9 +29,21 @@ function love.load()
 	local function myimg (path) return GfxSetPixelArtFilter(love.graphics.newImage(path)) end
 	img_genes_blue		= myimg("data/genes-blue.png"		)
 	img_genes_red		= myimg("data/genes-red.png"		)
+	
 	img_mob_att			= myimg("data/mob-att.png"			)
 	img_mob_def			= myimg("data/mob-def.png"			)
 	img_mob_player		= myimg("data/mob-player.png"		)
+	
+	img_part_face_grr	= myimg("data/part-face-grr.png"	)
+	img_part_face_oh	= myimg("data/part-face-oh.png"		)
+	img_part_legs_st	= myimg("data/part-legs-st.png"		)
+	img_part_legs_w1	= myimg("data/part-legs-w1.png"		)
+	img_part_legs_w2	= myimg("data/part-legs-w2.png"		)
+	img_part_shield		= myimg("data/part-shield.png"		)
+	img_part_sword2		= myimg("data/part-sword2.png"		)
+	img_part_sword		= myimg("data/part-sword.png"		)
+	
+	
 	img_shadow			= myimg("data/shadow.png"			)
 	img_tile_cave		= myimg("data/tile-cave.png"		)
 	img_tile_cave_floor	= myimg("data/tile-cave-floor.png"	)
@@ -102,8 +114,11 @@ function Draw_OverWorld (vw,vh)
 	end
 end
 
+-- dur in seconds
+function GetHoverDY (dur,t) return math.sin((t or gCurTime)/dur*2*math.pi) end
+
 function Draw_Mobiles ()
-	local hover_dy = math.sin(gCurTime/2*2*math.pi)
+	local hover_dy = GetHoverDY(2)
 	
 	-- spawn/nest
 	local e = kTileSize
@@ -157,30 +172,58 @@ end
 -- ***** ***** ***** ***** ***** cMobBase
 cMobBase = CreateClass()
 
+function cMobBase:Init (img,x,y) 
+	self.img = img
+	self.x = x
+	self.y = y
+	gMobiles[self] = true
+	self.img_face = (math.random() < 0.3) and img_part_face_oh or img_part_face_grr
+	self.anim_random_addt = math.random() -- seconds
+	self.hitting = true
+	self.walking = true
+	self.breathe_dt = 3 + 2*math.random() -- seconds
+end 
+
+-- fdur : frame duration, seconds
+function anim_frame (t,arr,fdur) 
+	local fnum = #arr
+	return arr[1+math.fmod(floor(t/fdur),fnum)]
+end
+
 function cMobBase:Draw () 
 	local x,y = self.x,self.y
 	love.graphics.draw(img_shadow,x,y)
-	love.graphics.draw(self.img,x,y)
+	local t = gCurTime + self.anim_random_addt -- seconds
+	local fdur = 0.1 -- frame duration, seconds
+	
+	if (self.walking) then 
+		love.graphics.draw(anim_frame(t,{img_part_legs_w1,img_part_legs_st,img_part_legs_w2,img_part_legs_st},fdur),x,y)
+	else
+		love.graphics.draw(img_part_legs_st,x,y)
+	end
+	
+	local breathe_y1 = floor(y + 1.5 * GetHoverDY(self.breathe_dt,t))
+	local breathe_y  = floor(y + 3   * GetHoverDY(self.breathe_dt,t))
+	local sword_ox = -5*8
+	
+	love.graphics.draw(self.img,x,breathe_y1)
+	love.graphics.draw(self.img_face,x,breathe_y1)
+	
+	
+	love.graphics.draw(img_part_shield,x,breathe_y)
+	if (self.hitting) then 
+		love.graphics.draw(anim_frame(t,{img_part_sword,img_part_sword2},fdur),x+sword_ox,breathe_y)
+	else
+		love.graphics.draw(img_part_sword,x+sword_ox,breathe_y)
+	end
 end
 
 -- ***** ***** ***** ***** ***** cMobEnemy
 cMobEnemy = CreateClass(cMobBase)
-
-function cMobEnemy:Init (img,x,y) 
-	self.img = img
-	self.x = x
-	self.y = y
-	gMobiles[self] = true
-end
+function cMobEnemy:Init (...) cMobBase.Init(self,...) end
 
 -- ***** ***** ***** ***** ***** cMobPlayer
 cMobPlayer = CreateClass(cMobBase)
-
-function cMobPlayer:Init (img,x,y) 
-	self.img = img
-	self.x = x
-	self.y = y
-	gMobiles[self] = true
-end
+function cMobPlayer:Init (...) cMobBase.Init(self,...) end
 
 -- ***** ***** ***** ***** ***** rest
