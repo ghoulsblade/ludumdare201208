@@ -3,6 +3,15 @@ gKeyPressed = {}
 gTitleScreen = true
 kTileSize = 64
 gOverWorldActive = true
+gCurTime = love.timer.getTime()
+
+floor = math.floor
+ceil = math.ceil
+max = math.max
+min = math.min
+abs = math.abs
+sin = math.sin
+cos = math.cos
 
 function GfxSetPixelArtFilter (gfx) gfx:setFilter("nearest","nearest") return gfx end
 
@@ -47,6 +56,7 @@ function love.keyreleased( key )
 end
 
 function love.update( dt )
+	gCurTime = love.timer.getTime()
 	if (gTitleScreen) then return end
 end
 
@@ -64,12 +74,15 @@ function Draw_OverWorld (vw,vh)
 end
 
 function Draw_Mobiles ()
+	local hover_dy = math.sin(gCurTime/2*2*math.pi)
+	
 	-- spawn/nest
 	local e = kTileSize
 	local tx,ty=5,8 love.graphics.draw(img_tile_nestegg, e*tx,e*ty)
 	local tx,ty=4,6 love.graphics.draw(img_shadow, e*tx,e*ty) love.graphics.draw(img_mob_player, e*tx,e*ty)
-	local tx,ty=6,5 love.graphics.draw(img_shadow, e*tx,e*ty) love.graphics.draw(img_genes_red, e*tx,e*ty)
-	local tx,ty=7,6 love.graphics.draw(img_shadow, e*tx,e*ty) love.graphics.draw(img_genes_blue, e*tx,e*ty)
+	local tx,ty=6,5 love.graphics.draw(img_shadow, e*tx,e*ty) love.graphics.draw(img_genes_red, e*tx,floor(e*ty + 4*hover_dy))
+	local tx,ty=7,6 love.graphics.draw(img_shadow, e*tx,e*ty) love.graphics.draw(img_genes_blue, e*tx,floor(e*ty + 4*hover_dy))
+	
 	
 	local tx,ty=4,4 love.graphics.draw(img_shadow, e*tx,e*ty) love.graphics.draw(img_mob_att, e*tx,e*ty)
 	local tx,ty=6,4 love.graphics.draw(img_shadow, e*tx,e*ty) love.graphics.draw(img_mob_def, e*tx,e*ty)
@@ -101,6 +114,7 @@ function Draw_Dungeon (vw,vh)
 end
 
 function love.draw()
+	gCurTime = love.timer.getTime()
 	if (gTitleScreen) then love.graphics.draw(img_titelscreen, 0,0) return end
 	
 	local vw = love.graphics.getWidth()
