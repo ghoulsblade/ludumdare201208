@@ -1,3 +1,4 @@
+gKeyPressed = {}
 
 function GfxSetPixelArtFilter (gfx) gfx:setFilter("nearest","nearest") return gfx end
 
@@ -11,6 +12,9 @@ end
 function love.keypressed( key, unicode )
     gKeyPressed[key] = true
     if (key == "escape") then os.exit(0) end
+end
+function love.keyreleased( key )
+    gKeyPressed[key] = nil
 end
 
 function love.update( dt )
