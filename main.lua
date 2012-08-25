@@ -2,6 +2,7 @@
 gKeyPressed = {}
 gTitleScreen = true
 kTileSize = 64
+gOverWorldActive = true
 
 function GfxSetPixelArtFilter (gfx) gfx:setFilter("nearest","nearest") return gfx end
 
@@ -13,8 +14,8 @@ function love.load()
 	img_mob_def			= myimg("data/mob-def.png"			)
 	img_mob_player		= myimg("data/mob-player.png"		)
 	img_shadow			= myimg("data/shadow.png"			)
-	img_tile_cave_floor	= myimg("data/tile-cave-floor.png"	)
 	img_tile_cave		= myimg("data/tile-cave.png"		)
+	img_tile_cave_floor	= myimg("data/tile-cave-floor.png"	)
 	img_tile_cave_wall	= myimg("data/tile-cave-wall.png"	)
 	img_tile_djungle	= myimg("data/tile-djungle.png"		)
 	img_tile_grass		= myimg("data/tile-grass.png"		)
@@ -31,13 +32,15 @@ function StartGame ()
 end
 
 function love.mousepressed(x,y,btn)
-	if (gTitleScreen) then StartGame() end
+	if (gTitleScreen) then return StartGame() end
+	gOverWorldActive = not gOverWorldActive
 end
 
 function love.keypressed( key, unicode )
     gKeyPressed[key] = true
     if (key == "escape") then os.exit(0) end
-	if (gTitleScreen) then StartGame() end
+	if (gTitleScreen) then return StartGame() end
+	gOverWorldActive = not gOverWorldActive
 end
 function love.keyreleased( key )
     gKeyPressed[key] = nil
@@ -47,12 +50,7 @@ function love.update( dt )
 	if (gTitleScreen) then return end
 end
 
-function love.draw()
-	if (gTitleScreen) then love.graphics.draw(img_titelscreen, 0,0) return end
-	
-	local vw = love.graphics.getWidth()
-	local vh = love.graphics.getHeight()
-	
+function Draw_OverWorld (vw,vh)
 	-- background
 	local e = kTileSize
 	for ty = 0,vh/kTileSize do 
@@ -63,8 +61,11 @@ function love.draw()
 		love.graphics.draw(tile, e*tx,e*ty)
 	end
 	end
-	
+end
+
+function Draw_Mobiles ()
 	-- spawn/nest
+	local e = kTileSize
 	local tx,ty=5,8 love.graphics.draw(img_tile_nestegg, e*tx,e*ty)
 	local tx,ty=4,6 love.graphics.draw(img_shadow, e*tx,e*ty) love.graphics.draw(img_mob_player, e*tx,e*ty)
 	local tx,ty=6,5 love.graphics.draw(img_shadow, e*tx,e*ty) love.graphics.draw(img_genes_red, e*tx,e*ty)
@@ -73,5 +74,42 @@ function love.draw()
 	local tx,ty=4,4 love.graphics.draw(img_shadow, e*tx,e*ty) love.graphics.draw(img_mob_att, e*tx,e*ty)
 	local tx,ty=6,4 love.graphics.draw(img_shadow, e*tx,e*ty) love.graphics.draw(img_mob_def, e*tx,e*ty)
 	local tx,ty=7,3 love.graphics.draw(img_shadow, e*tx,e*ty) love.graphics.draw(img_mob_def, e*tx,e*ty)
+	local tx,ty=7,2 love.graphics.draw(img_tile_cave, e*tx,e*ty)
 	
+end
+
+
+function Draw_Dungeon (vw,vh) 
+	if (not gDungeonWall) then 
+		gDungeonWall = {}
+		for ty = 0,vh/kTileSize do 
+		for tx = 0,vw/kTileSize do 
+			if (math.random(10) == 1) then gDungeonWall[tx..","..ty] = true end 
+		end
+		end
+	end
+
+	-- background
+	local e = kTileSize
+	for ty = 0,vh/kTileSize do 
+	for tx = 0,vw/kTileSize do 
+		local tile = img_tile_cave_floor
+		if (gDungeonWall[tx..","..ty]) then tile = img_tile_cave_wall end
+		love.graphics.draw(tile, e*tx,e*ty)
+	end
+	end
+end
+
+function love.draw()
+	if (gTitleScreen) then love.graphics.draw(img_titelscreen, 0,0) return end
+	
+	local vw = love.graphics.getWidth()
+	local vh = love.graphics.getHeight()
+	
+	if (gOverWorldActive) then
+		Draw_OverWorld(vw,vh)
+	else
+		Draw_Dungeon(vw,vh)
+	end
+	Draw_Mobiles()
 end
