@@ -62,10 +62,11 @@ function StartGame ()
 	gTitleScreen = false
 	
 	local e = kTileSize
-	local tx,ty=4,4 cMobEnemy:New(img_mob_att, e*tx,e*ty)
-	local tx,ty=6,4 cMobEnemy:New(img_mob_def, e*tx,e*ty)
-	local tx,ty=7,3 cMobEnemy:New(img_mob_def, e*tx,e*ty)
-	local tx,ty=4,6 gPlayer = cMobPlayer:New(img_mob_player, e*tx,e*ty)
+	local ox,oy = kTileSize/2, kTileSize/2
+	local tx,ty=4,4 cMobEnemy:New(img_mob_att, e*tx+ox,e*ty+oy)
+	local tx,ty=6,4 cMobEnemy:New(img_mob_def, e*tx+ox,e*ty+oy)
+	local tx,ty=7,3 cMobEnemy:New(img_mob_def, e*tx+ox,e*ty+oy)
+	local tx,ty=4,6 gPlayer = cMobPlayer:New(img_mob_player, e*tx+ox,e*ty+oy)
 	
 end
 
@@ -98,10 +99,24 @@ function love.update( dt )
 	
 	local ax,ay = 0,0
 	local s = PLAYER_SPEED*dt
+	
+	--[[
 	if (gKeyPressed["a"] or gKeyPressed["left"]) then ax = -s end
 	if (gKeyPressed["d"] or gKeyPressed["right"]) then ax = s end
 	if (gKeyPressed["w"] or gKeyPressed["up"]) then ay = -s end
 	if (gKeyPressed["s"] or gKeyPressed["down"]) then ay = s end
+	]]--
+	
+	local x, y = love.mouse.getPosition()
+	local dx,dy = x - gPlayer.x , y - gPlayer.y
+	local mouse_follow_dist = 20
+	local d = math.sqrt(dx*dx+dy*dy)
+	if (d > mouse_follow_dist) then 
+		ax = dx * s / d
+		ay = dy * s / d
+	end
+	
+	
 	gPlayer.x = gPlayer.x + ax
 	gPlayer.y = gPlayer.y + ay
 	gPlayer.walking = (ax ~= 0) or (ay ~= 0)
@@ -201,7 +216,8 @@ function anim_frame (t,arr,fdur)
 end
 
 function cMobBase:Draw () 
-	local x,y = self.x,self.y
+	local ox,oy = -kTileSize/2, -kTileSize/2
+	local x,y = self.x+ox,self.y+oy
 	love.graphics.draw(img_shadow,x,y)
 	local t = gCurTime + self.anim_random_addt -- seconds
 	local fdur = 0.1 -- frame duration, seconds
