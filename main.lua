@@ -22,6 +22,7 @@ function love.load()
 	img_tile_nest		= myimg("data/tile-nest.png"		)
 	img_tile_sand		= myimg("data/tile-sand.png"		)
 	img_tile_water		= myimg("data/tile-water.png"		)
+	img_tile_sand_water	= myimg("data/tile-sand-water.png"	)
 	img_titelscreen		= myimg("data/titelscreen.jpg"		)
 end
 
@@ -47,19 +48,30 @@ function love.update( dt )
 end
 
 function love.draw()
-	if (gTitleScreen) then love.graphics.draw(img_titelscreen, 0,0, 0, 1,1) return end
+	if (gTitleScreen) then love.graphics.draw(img_titelscreen, 0,0) return end
 	
 	local vw = love.graphics.getWidth()
 	local vh = love.graphics.getHeight()
 	
+	-- background
 	local e = kTileSize
 	for ty = 0,vh/kTileSize do 
 	for tx = 0,vw/kTileSize do 
 		local tile = img_tile_sand
-		if (tx < 4) then tile = img_tile_water end
-		if (tx == 5 and ty == 8) then tile = img_tile_nestegg end
-		love.graphics.draw(tile, e*tx,e*ty, 0, 1,1)
+		if (tx <  3) then tile = img_tile_water end
+		if (tx == 3) then tile = img_tile_sand_water end
+		love.graphics.draw(tile, e*tx,e*ty)
 	end
 	end
+	
+	-- spawn/nest
+	local tx,ty=5,8 love.graphics.draw(img_tile_nestegg, e*tx,e*ty)
+	local tx,ty=4,6 love.graphics.draw(img_shadow, e*tx,e*ty) love.graphics.draw(img_mob_player, e*tx,e*ty)
+	local tx,ty=6,5 love.graphics.draw(img_shadow, e*tx,e*ty) love.graphics.draw(img_genes_red, e*tx,e*ty)
+	local tx,ty=7,6 love.graphics.draw(img_shadow, e*tx,e*ty) love.graphics.draw(img_genes_blue, e*tx,e*ty)
+	
+	local tx,ty=4,4 love.graphics.draw(img_shadow, e*tx,e*ty) love.graphics.draw(img_mob_att, e*tx,e*ty)
+	local tx,ty=6,4 love.graphics.draw(img_shadow, e*tx,e*ty) love.graphics.draw(img_mob_def, e*tx,e*ty)
+	local tx,ty=7,3 love.graphics.draw(img_shadow, e*tx,e*ty) love.graphics.draw(img_mob_def, e*tx,e*ty)
 	
 end
