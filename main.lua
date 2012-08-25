@@ -33,7 +33,7 @@ function love.load()
 	img_tile_sand		= myimg("data/tile-sand.png"		)
 	img_tile_water		= myimg("data/tile-water.png"		)
 	img_tile_sand_water	= myimg("data/tile-sand-water.png"	)
-	img_titelscreen		= myimg("data/titelscreen.jpg"		)
+	img_screen_title	= myimg("data/screen-title.jpg"		)
 end
 
 function StartGame ()
@@ -115,7 +115,7 @@ end
 
 function love.draw()
 	gCurTime = love.timer.getTime()
-	if (gTitleScreen) then love.graphics.draw(img_titelscreen, 0,0) return end
+	if (gTitleScreen) then love.graphics.draw(img_screen_title, 0,0) return end
 	
 	local vw = love.graphics.getWidth()
 	local vh = love.graphics.getHeight()
