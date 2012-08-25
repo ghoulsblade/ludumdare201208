@@ -18,6 +18,10 @@ cos = math.cos
 
 function GfxSetPixelArtFilter (gfx) gfx:setFilter("nearest","nearest") return gfx end
 
+gMobiles = {}
+
+
+
 function love.load()
 	local function myimg (path) return GfxSetPixelArtFilter(love.graphics.newImage(path)) end
 	img_genes_blue		= myimg("data/genes-blue.png"		)
@@ -41,6 +45,13 @@ end
 
 function StartGame ()
 	gTitleScreen = false
+	
+	local e = kTileSize
+	local tx,ty=4,6 cMobPlayer:New(img_mob_player, e*tx,e*ty)
+	local tx,ty=4,4 cMobEnemy:New(img_mob_att, e*tx,e*ty)
+	local tx,ty=6,4 cMobEnemy:New(img_mob_def, e*tx,e*ty)
+	local tx,ty=7,3 cMobEnemy:New(img_mob_def, e*tx,e*ty)
+	
 end
 
 function love.mousepressed(x,y,btn)
@@ -82,16 +93,12 @@ function Draw_Mobiles ()
 	-- spawn/nest
 	local e = kTileSize
 	local tx,ty=5,8 love.graphics.draw(img_tile_nestegg, e*tx,e*ty)
-	local tx,ty=4,6 love.graphics.draw(img_shadow, e*tx,e*ty) love.graphics.draw(img_mob_player, e*tx,e*ty)
 	local tx,ty=6,5 love.graphics.draw(img_shadow, e*tx,e*ty) love.graphics.draw(img_genes_red, e*tx,floor(e*ty + 4*hover_dy))
 	local tx,ty=7,6 love.graphics.draw(img_shadow, e*tx,e*ty) love.graphics.draw(img_genes_blue, e*tx,floor(e*ty + 4*hover_dy))
 	
-	
-	local tx,ty=4,4 love.graphics.draw(img_shadow, e*tx,e*ty) love.graphics.draw(img_mob_att, e*tx,e*ty)
-	local tx,ty=6,4 love.graphics.draw(img_shadow, e*tx,e*ty) love.graphics.draw(img_mob_def, e*tx,e*ty)
-	local tx,ty=7,3 love.graphics.draw(img_shadow, e*tx,e*ty) love.graphics.draw(img_mob_def, e*tx,e*ty)
 	local tx,ty=7,2 love.graphics.draw(img_tile_cave, e*tx,e*ty)
 	
+	for mob,_ in pairs(gMobiles) do mob:Draw() end
 end
 
 
@@ -130,3 +137,35 @@ function love.draw()
 	end
 	Draw_Mobiles()
 end
+
+
+-- ***** ***** ***** ***** ***** cMobBase
+cMobBase = CreateClass()
+
+function cMobBase:Draw () 
+	local x,y = self.x,self.y
+	love.graphics.draw(img_shadow,x,y)
+	love.graphics.draw(self.img,x,y)
+end
+
+-- ***** ***** ***** ***** ***** cMobEnemy
+cMobEnemy = CreateClass(cMobBase)
+
+function cMobEnemy:Init (img,x,y) 
+	self.img = img
+	self.x = x
+	self.y = y
+	gMobiles[self] = true
+end
+
+-- ***** ***** ***** ***** ***** cMobPlayer
+cMobPlayer = CreateClass(cMobBase)
+
+function cMobPlayer:Init (img,x,y) 
+	self.img = img
+	self.x = x
+	self.y = y
+	gMobiles[self] = true
+end
+
+-- ***** ***** ***** ***** ***** rest
