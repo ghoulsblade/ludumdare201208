@@ -2,11 +2,14 @@
 
 love.filesystem.load("lib.oop.lua")()
 
+PLAYER_SPEED = 200 -- pixels per second
+
 gKeyPressed = {}
 gTitleScreen = true
 kTileSize = 64
 gOverWorldActive = true
 gCurTime = love.timer.getTime()
+gSecondsSinceLastFrame = 0
 
 floor = math.floor
 ceil = math.ceil
@@ -47,7 +50,7 @@ function StartGame ()
 	gTitleScreen = false
 	
 	local e = kTileSize
-	local tx,ty=4,6 cMobPlayer:New(img_mob_player, e*tx,e*ty)
+	local tx,ty=4,6 gPlayer = cMobPlayer:New(img_mob_player, e*tx,e*ty)
 	local tx,ty=4,4 cMobEnemy:New(img_mob_att, e*tx,e*ty)
 	local tx,ty=6,4 cMobEnemy:New(img_mob_def, e*tx,e*ty)
 	local tx,ty=7,3 cMobEnemy:New(img_mob_def, e*tx,e*ty)
@@ -56,22 +59,34 @@ end
 
 function love.mousepressed(x,y,btn)
 	if (gTitleScreen) then return StartGame() end
-	gOverWorldActive = not gOverWorldActive
 end
 
 function love.keypressed( key, unicode )
+	--~ print("keypressed",key)
     gKeyPressed[key] = true
     if (key == "escape") then os.exit(0) end
 	if (gTitleScreen) then return StartGame() end
-	gOverWorldActive = not gOverWorldActive
 end
 function love.keyreleased( key )
     gKeyPressed[key] = nil
 end
 
 function love.update( dt )
-	gCurTime = love.timer.getTime()
+	local t = love.timer.getTime()
+	gSecondsSinceLastFrame = gCurTime and min(0.1,t-gCurTime) or 0
+	gCurTime = t
 	if (gTitleScreen) then return end
+	
+	local ax,ay = 0,0
+	local s = PLAYER_SPEED*dt
+	if (gKeyPressed["a"] or gKeyPressed["left"]) then ax = -s end
+	if (gKeyPressed["d"] or gKeyPressed["right"]) then ax = s end
+	if (gKeyPressed["w"] or gKeyPressed["up"]) then ay = -s end
+	if (gKeyPressed["s"] or gKeyPressed["down"]) then ay = s end
+	gPlayer.x = gPlayer.x + ax
+	gPlayer.y = gPlayer.y + ay
+	
+	--~ gOverWorldActive = not gOverWorldActive
 end
 
 function Draw_OverWorld (vw,vh)
