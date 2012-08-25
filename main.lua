@@ -69,8 +69,15 @@ function StartGame ()
 	
 end
 
+function love.mousereleased(x,y,btn)
+	if (btn == "l") then gMouseDownL = false end
+	--~ print("mousereleased",x,y,btn)
+end
 function love.mousepressed(x,y,btn)
+	if (btn == "l") then gMouseDownL = true end
+	
 	if (gTitleScreen) then return StartGame() end
+	--~ print("mousepressed",x,y,btn)
 end
 
 function love.keypressed( key, unicode )
@@ -97,6 +104,9 @@ function love.update( dt )
 	if (gKeyPressed["s"] or gKeyPressed["down"]) then ay = s end
 	gPlayer.x = gPlayer.x + ax
 	gPlayer.y = gPlayer.y + ay
+	gPlayer.walking = (ax ~= 0) or (ay ~= 0)
+	gPlayer.hitting = gKeyPressed[" "] or  gMouseDownL
+	
 	
 	--~ gOverWorldActive = not gOverWorldActive
 end
@@ -179,8 +189,8 @@ function cMobBase:Init (img,x,y)
 	gMobiles[self] = true
 	self.img_face = (math.random() < 0.3) and img_part_face_oh or img_part_face_grr
 	self.anim_random_addt = math.random() -- seconds
-	self.hitting = true
-	self.walking = true
+	self.hitting = false
+	self.walking = false
 	self.breathe_dt = 3 + 2*math.random() -- seconds
 end 
 
