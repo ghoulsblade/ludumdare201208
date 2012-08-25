@@ -50,10 +50,10 @@ function StartGame ()
 	gTitleScreen = false
 	
 	local e = kTileSize
-	local tx,ty=4,6 gPlayer = cMobPlayer:New(img_mob_player, e*tx,e*ty)
 	local tx,ty=4,4 cMobEnemy:New(img_mob_att, e*tx,e*ty)
 	local tx,ty=6,4 cMobEnemy:New(img_mob_def, e*tx,e*ty)
 	local tx,ty=7,3 cMobEnemy:New(img_mob_def, e*tx,e*ty)
+	local tx,ty=4,6 gPlayer = cMobPlayer:New(img_mob_player, e*tx,e*ty)
 	
 end
 
