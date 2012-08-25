@@ -1,6 +1,7 @@
 -- ludumdare 2012-08 ghoulsblade generogue
 gKeyPressed = {}
 gTitleScreen = true
+kTileSize = 64
 
 function GfxSetPixelArtFilter (gfx) gfx:setFilter("nearest","nearest") return gfx end
 
@@ -47,4 +48,18 @@ end
 
 function love.draw()
 	if (gTitleScreen) then love.graphics.draw(img_titelscreen, 0,0, 0, 1,1) return end
+	
+	local vw = love.graphics.getWidth()
+	local vh = love.graphics.getHeight()
+	
+	local e = kTileSize
+	for ty = 0,vh/kTileSize do 
+	for tx = 0,vw/kTileSize do 
+		local tile = img_tile_sand
+		if (tx < 4) then tile = img_tile_water end
+		if (tx == 5 and ty == 8) then tile = img_tile_nestegg end
+		love.graphics.draw(tile, e*tx,e*ty, 0, 1,1)
+	end
+	end
+	
 end
