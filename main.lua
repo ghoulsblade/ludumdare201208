@@ -105,7 +105,9 @@ function love.load()
 	img_screen_title	= myimg("data/screen-title.jpg"		)
 	
 	if (love.web) then 
-		love.graphics.setFont(love.graphics.newFont())
+		fontimg = myimg("data/imgfont.png")
+		imgfont = love.graphics.newImageFont(fontimg," abcdefghijklmnopqrstuvwxyz0123456789.!'-:·")
+		love.graphics.setFont(imgfont)
 		gFontScale = 5
 	else
 		love.graphics.setFont(love.graphics.newFont(40))
@@ -202,12 +204,22 @@ function love.draw()
 	local e = kTileSize
 	local b = kTileSize*2
 	local s = gFontScale
+	local col_red = {255,0,0,255}
+	local col_blue = {0,128,255,255}
+	
+	
 	love.graphics.draw(img_genes_red	,ox+0*b  ,oy)
-	love.graphics.print(gCarried_Red	,ox+0*b+e,oy,0,s,s)
 	love.graphics.draw(img_genes_blue	,ox+1*b  ,oy)
+	love.graphics.draw(img_tile_nestegg	,ox+2*b  ,oy) 
+	
+	
+	love.graphics.setColor(unpack(col_red))
+	love.graphics.print(gCarried_Red	,ox+0*b+e,oy,0,s,s)
+	love.graphics.print(gEgg_Red		,ox+2*b+e  ,oy,0,s,s)
+	love.graphics.setColor(unpack(col_blue))
 	love.graphics.print(gCarried_Blue	,ox+1*b+e,oy,0,s,s)
-	love.graphics.draw(img_tile_nestegg	,ox+2*b  ,oy) local txt = gEgg_Red.." "..gEgg_Blue
-	love.graphics.print(txt				,ox+2*b+e,oy,0,s,s)
+	love.graphics.print(gEgg_Blue		,ox+2*b+e+e,oy,0,s,s)
+	love.graphics.setColor(255,255,255,255)
 	
 end
 
