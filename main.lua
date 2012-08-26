@@ -2,6 +2,7 @@
 
 love.filesystem.load("lib.oop.lua")()
 love.filesystem.load("lib.mobiles.lua")()
+love.filesystem.load("lib.area.lua")()
 
 kTileSize = 64
 kIconSize = 16
@@ -23,7 +24,6 @@ PLAYER_START_DEF = 5
 
 gKeyPressed = {}
 gTitleScreen = true
-gOverWorldActive = true
 gCurTime = love.timer.getTime()
 gSecondsSinceLastFrame = 0
 
@@ -37,7 +37,6 @@ cos = math.cos
 
 function GfxSetPixelArtFilter (gfx) gfx:setFilter("nearest","nearest") return gfx end
 
-gMobiles = {}
 
 
 
@@ -128,9 +127,9 @@ function love.update( dt )
 	
 	if (gKeyPressed[" "] or gMouseDownL) then gPlayer:AutoAttack() end
 	
-	for mob,_ in pairs(gMobiles) do mob:Step(dt) end
+	for mob,_ in pairs(gCurArea.mobiles) do mob:Step(dt) end
+	gPlayer:Step(dt)
 	
-	--~ gOverWorldActive = not gOverWorldActive
 end
 
 -- ***** ***** ***** ***** ***** love.draw
@@ -142,11 +141,7 @@ function love.draw()
 	local vw = love.graphics.getWidth()
 	local vh = love.graphics.getHeight()
 	
-	if (gOverWorldActive) then
-		Draw_OverWorld(vw,vh)
-	else
-		Draw_Dungeon(vw,vh)
-	end
+	gCurArea:Draw(vw,vh)
 	
 	local hover_dy = GetHoverDY(2)
 	
@@ -158,67 +153,29 @@ function love.draw()
 	
 	local tx,ty=7,2 love.graphics.draw(img_tile_cave, e*tx,e*ty)
 	
-	for mob,_ in pairs(gMobiles) do mob:Draw() end
-	
+	for mob,_ in pairs(gCurArea.mobiles) do mob:Draw() end
+	gPlayer:Draw()
 end
 
-
--- ***** ***** ***** ***** ***** draw parts
-
-
-function Draw_OverWorld (vw,vh)
-	-- background
-	local e = kTileSize
-	for ty = 0,vh/kTileSize do 
-	for tx = 0,vw/kTileSize do 
-		local tile = img_tile_sand
-		if (tx <  3) then tile = img_tile_water end
-		if (tx == 3) then tile = img_tile_sand_water end
-		love.graphics.draw(tile, e*tx,e*ty)
-	end
-	end
-end
-
-
-
-function Draw_Dungeon (vw,vh) 
-	if (not gDungeonWall) then 
-		gDungeonWall = {}
-		for ty = 0,vh/kTileSize do 
-		for tx = 0,vw/kTileSize do 
-			if (math.random(10) == 1) then gDungeonWall[tx..","..ty] = true end 
-		end
-		end
-	end
-
-	-- background
-	local e = kTileSize
-	for ty = 0,vh/kTileSize do 
-	for tx = 0,vw/kTileSize do 
-		local tile = img_tile_cave_floor
-		if (gDungeonWall[tx..","..ty]) then tile = img_tile_cave_wall end
-		love.graphics.draw(tile, e*tx,e*ty)
-	end
-	end
-end
 
 
 -- ***** ***** ***** ***** ***** gamestart
 
-
 function StartGame ()
 	gTitleScreen = false
-	
-	local e = kTileSize
-	local ox,oy = kTileSize/2, kTileSize/2
-	local tx,ty=4,4 cMobEnemy:New(img_mob_att, e*tx+ox,e*ty+oy, 2,1)
-	local tx,ty=6,4 cMobEnemy:New(img_mob_def, e*tx+ox,e*ty+oy, 1,2)
-	local tx,ty=7,1 cMobEnemy:New(img_mob_def, e*tx+ox,e*ty+oy, 1,2)
-	local tx,ty=4,6 gPlayer = cMobPlayer:New(img_mob_player, e*tx+ox,e*ty+oy)
-	
+	gAreaOverworld = cAreaOverworld:New()
+	ChangeToArea(gAreaOverworld)
+ 
+	gPlayer = cMobPlayer:New(nil,img_mob_player, 4,6)
+end
+
+function ChangeToArea (area)
+	gCurArea = area
+	gCurArea:OnEnter()
 end
 
 -- ***** ***** ***** ***** ***** utils
+
 
 -- dur in seconds
 function GetHoverDY (dur,t) return math.sin((t or gCurTime)/dur*2*math.pi) end
@@ -229,5 +186,6 @@ function anim_frame (t,arr,fdur)
 	local fnum = #arr
 	return arr[1+math.fmod(floor(t/fdur),fnum)]
 end
+
 
 -- ***** ***** ***** ***** ***** rest

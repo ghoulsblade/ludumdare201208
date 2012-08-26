@@ -1,24 +1,16 @@
 
 
--- ***** ***** ***** ***** ***** utils
-
-
-function GetNearestEnemyToPos (x,y,skip)
-	local found_dist
-	local found_o
-	for o,_ in pairs(gMobiles) do 
-		if (o ~= skip and o.is_enemy) then 
-			local cur_dist = o:DistToPos(x,y)
-			if ((not found_dist) or cur_dist < found_dist) then found_dist = cur_dist found_o = o end
-		end
-	end
-	return found_o,found_dist
-end
-
 -- ***** ***** ***** ***** ***** cMobBase
 cMobBase = CreateClass()
 
-function cMobBase:Init (img,x,y,att,def) 
+function cMobBase:Init (area,img,tx,ty,att,def) 
+	local e = kTileSize
+	local ox,oy = kTileSize/2, kTileSize/2
+	local x,y = e*tx+ox,e*ty+oy
+	
+	self.area = area
+	if (area) then area.mobiles[self] = true end
+	
 	self.img = img
 	self.att = att or 1
 	self.def = def or 1
@@ -32,7 +24,6 @@ function cMobBase:Init (img,x,y,att,def)
 	self.attack_interval = MOBILE_ATTACK_INTERVAL
 	self.attack_anim_until = 0
 	self.attack_anim_dur = MOBILE_ATTACK_ANIM_DUR
-	gMobiles[self] = true
 	self.img_face = (math.random() < 0.3) and img_part_face_oh or img_part_face_grr
 	self.anim_random_addt = math.random() -- seconds
 	self.walking = false
@@ -173,7 +164,7 @@ function cMobEnemy:Step (dt)
 	if (gPlayer.dead) then return end
 	local bCanStillWalk = true 
 	
-	local other,d = GetNearestEnemyToPos(self.x,self.y,self)
+	local other,d = self.area:GetNearestEnemyToPos(self.x,self.y,self)
 	if (d < ENEMY_SPREAD_DIST) then self:WalkAwayFromMob(other,SPEED_ENEMY,9999,dt) bCanStillWalk = false end
 	
 	if (bCanStillWalk) then
@@ -191,15 +182,15 @@ end
 -- ***** ***** ***** ***** ***** cMobPlayer
 cMobPlayer = CreateClass(cMobBase)
 function cMobPlayer:Init (...) 
-	cMobBase.Init(self,...) 
+	cMobBase.Init(self,...)
 	self.attack_interval = PLAYER_ATTACK_INTERVAL
 	self.def = PLAYER_START_DEF
 end
 
 function cMobPlayer:AutoAttack () -- swing wildly and always, even if not in range, used by player when holding down key
 	if (self.dead) then return end
-	local mob,d = GetNearestEnemyToPos(self.x,self.y,self)
-	if (d > PLAYER_ATTACK_RANGE) then mob = nil end
+	local mob,d = gCurArea:GetNearestEnemyToPos(self.x,self.y,self)
+	if (mob and d > PLAYER_ATTACK_RANGE) then mob = nil end
 	self:Attack(mob)
 end
 
