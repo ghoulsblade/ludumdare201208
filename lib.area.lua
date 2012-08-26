@@ -76,19 +76,30 @@ function cAreaDungeon:Init ()
 end
 
 function cAreaDungeon:OnEnter ()
-	if (self.walls) then return end
+	gPlayer.x = 0
+	gPlayer.y = 0
+	local vw = gScreenW
+	local vh = gScreenH
+	CamSetTarget(gPlayer.x-vw/2,gPlayer.y-vh/2,true)
+
+	if (self.init_done) then return end
 	-- generate dungeon on first enter
+	self.init_done = true
 	
 	-- mobs 
 	cMobEnemy:New(self,img_mob_att, 4,4, 2,1)
 	cMobEnemy:New(self,img_mob_def, 6,4, 1,2)
 	cMobEnemy:New(self,img_mob_def, 7,1, 1,2)
 	
+	-- items
+	self.exit = cItemCaveExit:New(self,0,0)
 	cItemGeneRed:New(self,6,5)
 	cItemGeneBlue:New(self,7,6)
 	
 	-- walls
 	self.walls = {}
+	local vw = gScreenW
+	local vh = gScreenH
 	for ty = 0,vh/kTileSize do 
 	for tx = 0,vw/kTileSize do 
 		if (math.random(10) == 1) then self.walls[tx..","..ty] = true end 
@@ -99,7 +110,8 @@ end
 function cAreaDungeon:Update (dt)
 	local vw = gScreenW
 	local vh = gScreenH
-	CamSetTarget(gPlayer.x-vw/2,gPlayer.y-vh/2)
+	
+	if (not gPlayer.dead) then CamSetTarget(gPlayer.x-vw/2,gPlayer.y-vh/2) end
 end
 
 function cAreaDungeon:Draw ()
@@ -107,8 +119,12 @@ function cAreaDungeon:Draw ()
 	local vh = gScreenH
 	-- background
 	local e = kTileSize
-	for ty = 0,vh/kTileSize do 
-	for tx = 0,vw/kTileSize do 
+	local txmin = floor((gCamX)/kTileSize)
+	local txmax = ceil( (gCamX+vw)/kTileSize)
+	local tymin = floor((gCamY)/kTileSize)
+	local tymax = ceil( (gCamY+vh)/kTileSize)
+	for tx = txmin,txmax do 
+	for ty = tymin,tymax do 
 		local tile = img_tile_cave_floor
 		if (self.walls[tx..","..ty]) then tile = img_tile_cave_wall end
 		love.graphics.draw(tile, e*tx-gCamX,e*ty-gCamY)

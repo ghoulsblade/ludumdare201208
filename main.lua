@@ -23,6 +23,7 @@ MOBILE_ATTACK_INTERVAL = 0.2 -- seconds
 MOBILE_ATTACK_ANIM_DUR = 0.1 -- seconds
 PLAYER_START_DEF = 5
 CAM_DAMP = 0.9
+ITEM_TOUCH_DIST = kTileSize
 
 OVERWORLD_TX_SAND = 1
 OVERWORLD_TX_GRASS = 1*15
@@ -58,8 +59,8 @@ function love.load()
 	local function myimg (path) return GfxSetPixelArtFilter(love.graphics.newImage(path)) end
 	img_genes_blue		= myimg("data/genes-blue.png"		)
 	img_genes_red		= myimg("data/genes-red.png"		)
-	img_tile_nestegg	= myimg("data/tile-nestegg.png"		)
 	img_tile_nest		= myimg("data/tile-nest.png"		)
+	img_tile_nestegg	= myimg("data/tile-nestegg.png"		)
 	
 	img_mob_att			= myimg("data/mob-att.png"			)
 	img_mob_def			= myimg("data/mob-def.png"			)
@@ -137,18 +138,20 @@ function love.update( dt )
 	gCurTime = t
 	if (gTitleScreen) then return end
 	
-	--[[
-	local ax,ay = 0,0
-	if (gKeyPressed["a"] or gKeyPressed["left"]) then ax = -s end
-	if (gKeyPressed["d"] or gKeyPressed["right"]) then ax = s end
-	if (gKeyPressed["w"] or gKeyPressed["up"]) then ay = -s end
-	if (gKeyPressed["s"] or gKeyPressed["down"]) then ay = s end
-	]]--
+	if (not gPlayer.dead) then 
+		--[[
+		local ax,ay = 0,0
+		if (gKeyPressed["a"] or gKeyPressed["left"]) then ax = -s end
+		if (gKeyPressed["d"] or gKeyPressed["right"]) then ax = s end
+		if (gKeyPressed["w"] or gKeyPressed["up"]) then ay = -s end
+		if (gKeyPressed["s"] or gKeyPressed["down"]) then ay = s end
+		]]--
 	
-	local x, y = love.mouse.getPosition()
-	gPlayer:WalkToPos(x+gCamX,y+gCamY,SPEED_PLAYER,STOPDIST_PLAYER_MOUSE,dt)
+		local x, y = love.mouse.getPosition()
+		gPlayer:WalkToPos(x+gCamX,y+gCamY,SPEED_PLAYER,STOPDIST_PLAYER_MOUSE,dt)
 	
-	if (gKeyPressed[" "] or gMouseDownL) then gPlayer:AutoAttack() end
+		if (gKeyPressed[" "] or gMouseDownL) then gPlayer:AutoAttack() end
+	end
 	
 	for o,_ in pairs(gCurArea.items) do o:Step(dt) end
 	for o,_ in pairs(gCurArea.mobiles) do o:Step(dt) end

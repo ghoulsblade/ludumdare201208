@@ -171,7 +171,7 @@ function cMobEnemy:Step (dt)
 	local bCanStillWalk = true 
 	
 	local other,d = self.area:GetNearestEnemyToPos(self.x,self.y,self)
-	if (d < ENEMY_SPREAD_DIST) then self:WalkAwayFromMob(other,SPEED_ENEMY,9999,dt) bCanStillWalk = false end
+	if (other and d < ENEMY_SPREAD_DIST) then self:WalkAwayFromMob(other,SPEED_ENEMY,9999,dt) bCanStillWalk = false end
 	
 	if (bCanStillWalk) then
 		local dp = self:DistToMob(gPlayer)
