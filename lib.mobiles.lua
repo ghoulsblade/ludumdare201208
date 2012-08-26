@@ -53,6 +53,10 @@ function cMobBase:WalkToPos_Aux (x,y,speed,stopdist,dt,dirmod)
 	local ax,ay = 0,0
 	local s = speed*dt
 	self.walking = false
+	
+	local mind = 5
+	if (x < self.x - mind) then self.left = true end
+	if (x > self.x + mind) then self.left = false end
 
 	local d = self:DistToPos(x,y)
 	dirmod = dirmod or 1
@@ -152,9 +156,17 @@ function cMobBase:Draw (camx,camy)
 	local fdur = 0.1 -- frame duration, seconds
 	
 	if (self.walking) then 
-		love.graphics.draw(anim_frame(t,{img_part_legs_w1,img_part_legs_st,img_part_legs_w2,img_part_legs_st},fdur),x,y)
+		if (self.left) then
+			love.graphics.draw(anim_frame(t,{img_part_legs_l_w1,img_part_legs_l_st,img_part_legs_l_w2,img_part_legs_l_st},fdur),x,y)
+		else
+			love.graphics.draw(anim_frame(t,{img_part_legs_r_w1,img_part_legs_r_st,img_part_legs_r_w2,img_part_legs_r_st},fdur),x,y)
+		end
 	else
-		love.graphics.draw(img_part_legs_st,x,y)
+		if (self.left) then
+			love.graphics.draw(img_part_legs_l_st,x,y)
+		else
+			love.graphics.draw(img_part_legs_r_st,x,y)
+		end
 	end
 	
 	local breathe_y1 = floor(y + 1.5 * GetHoverDY(self.breathe_dt,t))
@@ -165,11 +177,25 @@ function cMobBase:Draw (camx,camy)
 	love.graphics.draw(self.img_face,x,breathe_y1)
 	
 	
-	love.graphics.draw(img_part_shield,x,breathe_y)
-	if (self.attack_anim_until > gCurTime) then 
-		love.graphics.draw(img_part_sword2,x+sword_ox,breathe_y)
+	if (self.left) then
+		love.graphics.draw(img_part_shield,x,breathe_y)
 	else
-		love.graphics.draw(img_part_sword,x+sword_ox,breathe_y)
+		love.graphics.draw(img_part_shield_r,x,breathe_y)
+	end
+	
+	local sword_r_offx = 80
+	if (self.attack_anim_until > gCurTime) then 
+		if (self.left) then
+			love.graphics.draw(img_part_sword2   ,x+sword_ox,breathe_y)
+		else
+			love.graphics.draw(img_part_sword2_r ,x+sword_ox+sword_r_offx,breathe_y)
+		end
+	else
+		if (self.left) then
+			love.graphics.draw(img_part_sword ,x+sword_ox,breathe_y)
+		else
+			love.graphics.draw(img_part_sword_r,x+sword_ox+sword_r_offx,breathe_y)
+		end
 	end
 	
 	-- healtbar
