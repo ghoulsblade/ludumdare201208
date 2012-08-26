@@ -146,7 +146,9 @@ function cAreaDungeon:GenerateDungeonRooms()
 	self.room_list = {}
 	self:MakeRoom(0,0,DUNGEON_ROOM_MAXR, 0,0,nil)
 	
-	for i=1,4 do self:AppendRandomRoom((random(10) == 1) and cItemGeneBlue) end
+	local num_rooms = 2+self.level
+	
+	for i=1,num_rooms-1 do self:AppendRandomRoom((random(10) == 1) and cItemGeneBlue) end
 	self:AppendRandomRoom(cItemGeneRed) -- at the end, or at least somewhere deeeep in ;)
 end
 
