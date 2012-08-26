@@ -58,20 +58,25 @@ function cItemGeneBlue:Init (...) cItemBase.Init(self,...) self.img = img_genes_
 function cItemGeneRed:OnTouch ()
 	gCarried_Red = gCarried_Red + 1
 	self:Destroy()
+	snd_powerup:play()
 end
 
 function cItemGeneBlue:OnTouch ()
 	gCarried_Blue = gCarried_Blue + 1
 	self:Destroy()
+	snd_powerup:play()
 end
 
 function cItemNest:OnTouch ()
-	self.img = img_tile_nestegg 
+	if (self.touched) then return end -- initial touch-block
+	self.touched = true
+	self.img = img_tile_nestegg
+	snd_powerup:play()
 	
-	gEgg_Blue 		= gCarried_Blue 	
-	gEgg_Red  		= gCarried_Red  	
-	gEgg_TX			= floor(self.x / kTileSize)
-	gEgg_TY			= floor(self.y / kTileSize)
+	gEgg_Blue 	= gCarried_Blue 	
+	gEgg_Red  	= gCarried_Red  	
+	gEgg_TX		= floor(self.x / kTileSize)
+	gEgg_TY		= floor(self.y / kTileSize)
 end
 
 function cItemCaveExit:OnTouch ()

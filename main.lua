@@ -37,7 +37,9 @@ OVERWORLD_TX_GRASS = 1*15
 OVERWORLD_TX_DJUNGLE = 2*15
 
 gMusic = true
-VOLUME = 1
+gSound = true
+VOLUME_MUSIC = 1
+VOLUME_SOUND = 1
 
 gCamX = 0
 gCamY = 0
@@ -111,12 +113,46 @@ function love.load()
 	
 	img_screen_title	= myimg("data/screen-title.jpg"		)
 	
+	if (gSound) then 
+		snds = {}
+		local function mysnd (path) 
+			local snd = {}
+			if (gSound) then 
+				snd.src = love.audio.newSource(path,"static") 
+				snd.src:setVolume(VOLUME_SOUND) 
+			end
+			function snd:play ()
+				if (self.next_play_t > gCurTime) then return end
+				self.next_play_t = gCurTime + self.play_interval
+				if (gSound) then 
+					--~ love.audio.play(self.src)
+					self.src:stop()
+					self.src:rewind()
+					self.src:play() -- Starts playing the Source.
+				end
+				--~ print("snd:play()",self.path)
+			end
+			snd.path = path 
+			snd.next_play_t = 0
+			snd.play_interval = 0.1 -- seconds
+			table.insert(snds,snd) 
+			return snd 
+		end
+		snd_hit			= mysnd("data/hit.wav")
+		snd_death		= mysnd("data/death.wav")
+		snd_ouch		= mysnd("data/ouch.wav")
+		snd_powerup		= mysnd("data/powerup.wav")
+		snd_swing		= mysnd("data/swing.wav")
+	end
+
+
+	
 	if (gMusic) then
 		local musicpath = "data/backloop.ogg"
-		local sfx = love.audio.newSource(musicpath)
-		sfx:setLooping(true)
-		sfx:setVolume(VOLUME)
-		sfx:play()
+		local music = love.audio.newSource(musicpath)
+		music:setLooping(true)
+		music:setVolume(VOLUME_MUSIC)
+		music:play()
 	end
 
 	
@@ -158,10 +194,24 @@ function love.keypressed( key, unicode )
     if (key == "escape") then os.exit(0) end
 	if (gTitleScreen) then return StartGame() end
     if (key == "f1") then print("player pos",floor(gPlayer.x/kTileSize),floor(gPlayer.y/kTileSize)) end
+	
+	
+	if (snds) then 
+		local snd = snds[tonumber(key) or 0]
+		if (snd) then snd:play() print("snd-test",snd.path) end
+	end
 end
 
 function love.keyreleased( key )
     gKeyPressed[key] = nil
+end
+
+-- ***** ***** ***** ***** ***** sound
+
+function Sound_PlayBySrc (o,name,looptimeadd) 
+	local snd = gSoundById[name]
+	if (snd) then snd:Play(o) end
+	if (looptimeadd) then o.snd_loop_nextt = gCurTime + looptimeadd end
 end
 
 -- ***** ***** ***** ***** ***** love.update
