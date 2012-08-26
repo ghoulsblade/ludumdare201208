@@ -2,11 +2,15 @@
 
 love.filesystem.load("lib.oop.lua")()
 
-PLAYER_SPEED = 200 -- pixels per second
+kTileSize = 64
+SPEED_PLAYER = 200 -- pixels per second
+SPEED_ENEMY = SPEED_PLAYER*0.8 -- pixels per second
+STOPDIST_PLAYER_MOUSE = 20 -- pixels
+STOPDIST_ENEMY_TARGET = 20 -- pixels
+ENEMY_SPREAD_DIST = kTileSize*1.0 -- pixels, enemies try to keep distance from each other
 
 gKeyPressed = {}
 gTitleScreen = true
-kTileSize = 64
 gOverWorldActive = true
 gCurTime = love.timer.getTime()
 gSecondsSinceLastFrame = 0
@@ -65,7 +69,7 @@ function StartGame ()
 	local ox,oy = kTileSize/2, kTileSize/2
 	local tx,ty=4,4 cMobEnemy:New(img_mob_att, e*tx+ox,e*ty+oy)
 	local tx,ty=6,4 cMobEnemy:New(img_mob_def, e*tx+ox,e*ty+oy)
-	local tx,ty=7,3 cMobEnemy:New(img_mob_def, e*tx+ox,e*ty+oy)
+	local tx,ty=7,1 cMobEnemy:New(img_mob_def, e*tx+ox,e*ty+oy)
 	local tx,ty=4,6 gPlayer = cMobPlayer:New(img_mob_player, e*tx+ox,e*ty+oy)
 	
 end
@@ -97,10 +101,9 @@ function love.update( dt )
 	gCurTime = t
 	if (gTitleScreen) then return end
 	
-	local ax,ay = 0,0
-	local s = PLAYER_SPEED*dt
 	
 	--[[
+	local ax,ay = 0,0
 	if (gKeyPressed["a"] or gKeyPressed["left"]) then ax = -s end
 	if (gKeyPressed["d"] or gKeyPressed["right"]) then ax = s end
 	if (gKeyPressed["w"] or gKeyPressed["up"]) then ay = -s end
@@ -108,20 +111,11 @@ function love.update( dt )
 	]]--
 	
 	local x, y = love.mouse.getPosition()
-	local dx,dy = x - gPlayer.x , y - gPlayer.y
-	local mouse_follow_dist = 20
-	local d = math.sqrt(dx*dx+dy*dy)
-	if (d > mouse_follow_dist) then 
-		ax = dx * s / d
-		ay = dy * s / d
-	end
+	gPlayer:WalkToPos(x,y,SPEED_PLAYER,STOPDIST_PLAYER_MOUSE,dt)
 	
-	
-	gPlayer.x = gPlayer.x + ax
-	gPlayer.y = gPlayer.y + ay
-	gPlayer.walking = (ax ~= 0) or (ay ~= 0)
 	gPlayer.hitting = gKeyPressed[" "] or  gMouseDownL
 	
+	for mob,_ in pairs(gMobiles) do mob:Step(dt) end
 	
 	--~ gOverWorldActive = not gOverWorldActive
 end
@@ -142,19 +136,6 @@ end
 -- dur in seconds
 function GetHoverDY (dur,t) return math.sin((t or gCurTime)/dur*2*math.pi) end
 
-function Draw_Mobiles ()
-	local hover_dy = GetHoverDY(2)
-	
-	-- spawn/nest
-	local e = kTileSize
-	local tx,ty=5,8 love.graphics.draw(img_tile_nestegg, e*tx,e*ty)
-	local tx,ty=6,5 love.graphics.draw(img_shadow, e*tx,e*ty) love.graphics.draw(img_genes_red, e*tx,floor(e*ty + 4*hover_dy))
-	local tx,ty=7,6 love.graphics.draw(img_shadow, e*tx,e*ty) love.graphics.draw(img_genes_blue, e*tx,floor(e*ty + 4*hover_dy))
-	
-	local tx,ty=7,2 love.graphics.draw(img_tile_cave, e*tx,e*ty)
-	
-	for mob,_ in pairs(gMobiles) do mob:Draw() end
-end
 
 
 function Draw_Dungeon (vw,vh) 
@@ -190,9 +171,42 @@ function love.draw()
 	else
 		Draw_Dungeon(vw,vh)
 	end
-	Draw_Mobiles()
+	
+	local hover_dy = GetHoverDY(2)
+	
+	-- spawn/nest
+	local e = kTileSize
+	local tx,ty=5,8 love.graphics.draw(img_tile_nestegg, e*tx,e*ty)
+	local tx,ty=6,5 love.graphics.draw(img_shadow, e*tx,e*ty) love.graphics.draw(img_genes_red, e*tx,floor(e*ty + 4*hover_dy))
+	local tx,ty=7,6 love.graphics.draw(img_shadow, e*tx,e*ty) love.graphics.draw(img_genes_blue, e*tx,floor(e*ty + 4*hover_dy))
+	
+	local tx,ty=7,2 love.graphics.draw(img_tile_cave, e*tx,e*ty)
+	
+	for mob,_ in pairs(gMobiles) do mob:Draw() end
+	
 end
 
+
+-- ***** ***** ***** ***** ***** utils
+
+
+-- fdur : frame duration, seconds
+function anim_frame (t,arr,fdur) 
+	local fnum = #arr
+	return arr[1+math.fmod(floor(t/fdur),fnum)]
+end
+
+function GetNearestEnemyToPos (x,y,skip)
+	local found_dist
+	local found_o
+	for o,_ in pairs(gMobiles) do 
+		if (o ~= skip and o.is_enemy) then 
+			local cur_dist = o:DistToPos(x,y)
+			if ((not found_dist) or cur_dist < found_dist) then found_dist = cur_dist found_o = o end
+		end
+	end
+	return found_o,found_dist
+end
 
 -- ***** ***** ***** ***** ***** cMobBase
 cMobBase = CreateClass()
@@ -209,10 +223,34 @@ function cMobBase:Init (img,x,y)
 	self.breathe_dt = 3 + 2*math.random() -- seconds
 end 
 
--- fdur : frame duration, seconds
-function anim_frame (t,arr,fdur) 
-	local fnum = #arr
-	return arr[1+math.fmod(floor(t/fdur),fnum)]
+function cMobBase:DistToMob (mob) return self:DistToPos(mob.x,mob.y) end
+function cMobBase:DistToPos (x,y) 
+	local dx,dy = x - self.x , y - self.y
+	return math.sqrt(dx*dx+dy*dy)
+end
+
+function cMobBase:WalkAwayFromMob (mob,speed,stopdist,dt) self:WalkToPos_Aux(mob.x,mob.y,speed,stopdist,dt,-1) end
+
+function cMobBase:WalkToMob (mob,speed,stopdist,dt) self:WalkToPos(mob.x,mob.y,speed,stopdist,dt) end
+
+function cMobBase:WalkToPos (x,y,speed,stopdist,dt) self:WalkToPos_Aux(x,y,speed,stopdist,dt) end
+
+function cMobBase:WalkToPos_Aux (x,y,speed,stopdist,dt,dirmod) 
+	local ax,ay = 0,0
+	local s = speed*dt
+
+	local d = self:DistToPos(x,y)
+	dirmod = dirmod or 1
+	if ((dirmod < 0 and d < stopdist) or d > stopdist) then 
+		ax = dirmod * (x - self.x) * s / d
+		ay = dirmod * (y - self.y) * s / d
+	end
+	self.x = self.x + ax
+	self.y = self.y + ay
+	self.walking = (ax ~= 0) or (ay ~= 0)
+end
+	
+function cMobBase:Step (dt) 
 end
 
 function cMobBase:Draw () 
@@ -246,7 +284,16 @@ end
 
 -- ***** ***** ***** ***** ***** cMobEnemy
 cMobEnemy = CreateClass(cMobBase)
-function cMobEnemy:Init (...) cMobBase.Init(self,...) end
+function cMobEnemy:Init (...) cMobBase.Init(self,...) self.is_enemy = true end
+
+function cMobEnemy:Step (dt)
+	local bWalkToPlayer = true 
+	
+	local other,d = GetNearestEnemyToPos(self.x,self.y,self)
+	if (d < ENEMY_SPREAD_DIST) then self:WalkAwayFromMob(other,SPEED_ENEMY,9999,dt) bWalkToPlayer = false end
+	
+	if (bWalkToPlayer) then self:WalkToMob(gPlayer,SPEED_ENEMY,STOPDIST_ENEMY_TARGET,dt) end
+end
 
 -- ***** ***** ***** ***** ***** cMobPlayer
 cMobPlayer = CreateClass(cMobBase)
