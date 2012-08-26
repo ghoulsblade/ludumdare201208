@@ -132,7 +132,7 @@ end
 
 
 function cAreaDungeon:GenerateDungeonRooms()
-	self:MakeRoom(0,0,5, 0,1)
+	self:MakeRoom(0,0,5, 0,1,(random(2) == 1) and cItemGeneRed or cItemGeneBlue)
 end
 
 function cAreaDungeon:IsWalkable (tx,ty) return self.floor[tx..","..ty] end
