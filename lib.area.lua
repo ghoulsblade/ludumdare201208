@@ -31,9 +31,13 @@ function cAreaOverworld:Init ()
 	
 	-- generate a "few"
 	for tx=1,100 do
-		if (math.fmod(tx-2,10) == 0) then cItemCave:New(self,tx,2) end
-		if (math.fmod(tx-2,10) == 5) then cItemCave:New(self,tx,8) end
-		if (math.fmod(tx-2,20) == 0) then cItemNest:New(self,tx,8) end
+		local i = tx - 2
+		if (i >= 0) then
+			local level = 1+floor(i/5)
+			if (math.fmod(i,10) == 0) then cItemCave:New(self,tx,2,level) end
+			if (math.fmod(i,10) == 5) then cItemCave:New(self,tx,8,level) end
+			if (math.fmod(i,20) == 0) then cItemNest:New(self,tx,8) end
+		end
 	end
 end
 
@@ -74,41 +78,31 @@ end
 cAreaDungeon = CreateClass(cAreaBase)
 
 
-function cAreaDungeon:Init ()
+function cAreaDungeon:Init (entrance,level)
 	cAreaBase.Init(self)
 	self.is_dungeon = true
+	self.entrance = entrance
+	self.level = level
 end
+
+
 
 function cAreaDungeon:OnEnter ()
 	if (self.init_done) then return end
 	-- generate dungeon on first enter
 	self.init_done = true
 	
-	-- mobs 
-	cMobEnemy:New(self,img_mob_att, 4,4, 2,1)
-	cMobEnemy:New(self,img_mob_def, 6,4, 1,2)
-	cMobEnemy:New(self,img_mob_def, 7,1, 1,2)
-	
 	-- items
 	self.exit = cItemCaveExit:New(self,0,0)
-	cItemGeneRed:New(self,6,5)
-	cItemGeneBlue:New(self,7,6)
 	
-	-- walls
-	self.walls = {}
-	local vw = gScreenW
-	local vh = gScreenH
-	for ty = 0,vh/kTileSize do 
-	for tx = 0,vw/kTileSize do 
-		if (math.random(10) == 1) then self.walls[tx..","..ty] = true end 
-	end
-	end
+	-- floor
+	self.floor = {}
+	self:GenerateDungeonRooms()
 end
 
 function cAreaDungeon:Update (dt)
 	if (not gPlayer.dead) then self:MoveCamToPlayer() end
 end
-
 
 function cAreaDungeon:MoveCamToPlayer (bForceReset)
 	local vw = gScreenW
@@ -127,10 +121,57 @@ function cAreaDungeon:Draw ()
 	local tymax = ceil( (gCamY+vh)/kTileSize)
 	for tx = txmin,txmax do 
 	for ty = tymin,tymax do 
-		local tile = img_tile_cave_floor
-		if (self.walls[tx..","..ty]) then tile = img_tile_cave_wall end
-		love.graphics.draw(tile, e*tx-gCamX,e*ty-gCamY)
+		local tile = nil
+		if (self.floor[tx..","..ty]) then tile = img_tile_cave_floor end
+		if (tile) then love.graphics.draw(tile, e*tx-gCamX,e*ty-gCamY) end
 	end
+	end
+end
+
+-- ***** ***** ***** ***** ***** dungeon rooms
+
+
+function cAreaDungeon:GenerateDungeonRooms()
+	self:MakeRoom(0,0,5, 0,1)
+end
+
+function cAreaDungeon:IsWalkable (tx,ty) return self.floor[tx..","..ty] end
+function cAreaDungeon:SetFloor (tx,ty) self.floor[tx..","..ty] = true end
+
+-- returns tx,ty
+function cAreaDungeon:GetRandomWalkablePos (tx0,ty0,r) 
+	for i=1,100 do 
+		local tx = floor(tx0-r+2*r*random())
+		local ty = floor(ty0-r+2*r*random())
+		if (self:IsWalkable(tx,ty)) then return tx,ty end
+	end
+end
+
+-- itemclass = cItemGeneRed or cItemGeneBlue
+function cAreaDungeon:MakeRoom (tx0,ty0,r, mobs_red,mobs_blue,itemclass)
+	-- floor
+	for ty=ty0-r,ty0+r do
+	for tx=tx0-r,tx0+r do
+		if (dist2(tx,ty,tx0,ty0) <= r) then 
+			self:SetFloor(tx,ty)
+		end
+	end
+	end
+	
+	--~ print("make room of level",level)
+	local level = self.level
+	-- mobs and items
+	for i=1,mobs_red or 0 do
+		local tx,ty = self:GetRandomWalkablePos(tx0,ty0,r)
+		if (tx) then cMobEnemy:New(self,img_mob_att, tx,ty, 2*ceil(level/2),1*level) end
+	end
+	for i=1,mobs_blue or 0 do
+		local tx,ty = self:GetRandomWalkablePos(tx0,ty0,r)
+		if (tx) then cMobEnemy:New(self,img_mob_def, tx,ty, 1*ceil(level/2),2*level) end
+	end
+	if (itemclass) then 
+		local tx,ty = self:GetRandomWalkablePos(tx0,ty0,r)
+		if (tx) then itemclass:New(self,tx,ty) end
 	end
 end
 

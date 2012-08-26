@@ -47,6 +47,7 @@ min = math.min
 abs = math.abs
 sin = math.sin
 cos = math.cos
+random = math.random
 
 function GfxSetPixelArtFilter (gfx) gfx:setFilter("nearest","nearest") return gfx end
 
@@ -211,6 +212,8 @@ end
 
 -- ***** ***** ***** ***** ***** utils
 
+function dist2 (ax,ay,bx,by) return hypot(ax-bx,ay-by) end
+function hypot (dx,dy) return math.sqrt(dx*dx+dy*dy) end
 
 -- dur in seconds
 function GetHoverDY (dur,t) return math.sin((t or gCurTime)/dur*2*math.pi) end

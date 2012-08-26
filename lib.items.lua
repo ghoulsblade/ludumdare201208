@@ -43,12 +43,10 @@ cItemGeneBlue = CreateClass(cItemBase)
 
 -- img_tile_nest img_tile_nestegg
 function cItemNest:Init (...) cItemBase.Init(self,...) self.img = img_tile_nest end
-function cItemCave:Init (...)
-	cItemBase.Init(self,...)
+function cItemCave:Init (area,tx,ty,level)
+	cItemBase.Init(self,area,tx,ty)
 	self.img = img_tile_cave
-	
-	self.dungeon = cAreaDungeon:New()
-	self.dungeon.entrance = self
+	self.dungeon = cAreaDungeon:New(self,level)
 end
 function cItemCaveExit:Init (...) cItemBase.Init(self,...) self.img = img_tile_cave_exit end
 function cItemGeneRed:Init (...) cItemBase.Init(self,...) self.img = img_genes_red self.hover_h = 4 self.shadow = true end
