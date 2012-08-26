@@ -94,6 +94,12 @@ function cMobBase:Attack (mob)
 	-- TODO : sound
 end
 
+-- environment, e.g. water
+function cMobBase:EnvDamage (dmg,dx,dy) 
+	self:AddHitVel(dx,dy)
+	self:TakeDamage(dmg,self)
+end
+
 function cMobBase:TakeDamage (dmg,attacker) 
 	self.def = self.def - dmg
 	if (self.def <= 0) then

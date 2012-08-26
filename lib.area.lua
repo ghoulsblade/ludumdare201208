@@ -28,8 +28,8 @@ function cAreaOverworld:Init ()
 	cAreaBase.Init(self)
 end
 
-function cAreaOverworld:Draw (vw,vh)
 
+function cAreaOverworld:Draw (vw,vh)
 	-- background
 	local e = kTileSize
 	local txmin = floor((gCamX)/kTileSize)
@@ -38,9 +38,14 @@ function cAreaOverworld:Draw (vw,vh)
 	local tymax = ceil((gCamY+vh)/kTileSize)
 	for tx = txmin,txmax do 
 	for ty = tymin,tymax do 
-		local tile = img_tile_sand
-		if (tx <  3) then tile = img_tile_water end
-		if (tx == 3) then tile = img_tile_sand_water end
+		local tile = img_tile_water
+		if (tx == OVERWORLD_TX_SAND) then tile = img_tile_sand_water end
+		if (tx  > OVERWORLD_TX_SAND) then tile = img_tile_sand end
+		if (tx  > OVERWORLD_TX_GRASS) then tile = img_tile_grass end
+		if (tx  > OVERWORLD_TX_DJUNGLE) then tile = img_tile_djungle end
+		
+		
+
 		love.graphics.draw(tile, e*tx-gCamX,e*ty-gCamY)
 	end
 	end
@@ -49,7 +54,8 @@ end
 function cAreaOverworld:Update (dt)
 	local vw = love.graphics.getWidth()
 	local vh = love.graphics.getHeight()
-	CamSetTarget(gPlayer.x-vw/2,0)
+	if (not gPlayer.dead) then CamSetTarget(gPlayer.x-vw/2,0) end
+	if (gPlayer.x < (OVERWORLD_TX_SAND-2)*kTileSize) then gPlayer:EnvDamage(1,1,0) end
 end
 
 -- ***** ***** ***** ***** ***** cAreaDungeon

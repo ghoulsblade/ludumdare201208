@@ -23,6 +23,11 @@ MOBILE_ATTACK_ANIM_DUR = 0.1 -- seconds
 PLAYER_START_DEF = 5
 CAM_DAMP = 0.95 
 
+OVERWORLD_TX_SAND = 1
+OVERWORLD_TX_GRASS = 1*15
+OVERWORLD_TX_DJUNGLE = 2*15
+
+
 gCamX = 0
 gCamY = 0
 gCamTargetX = 0
@@ -52,6 +57,8 @@ function love.load()
 	local function myimg (path) return GfxSetPixelArtFilter(love.graphics.newImage(path)) end
 	img_genes_blue		= myimg("data/genes-blue.png"		)
 	img_genes_red		= myimg("data/genes-red.png"		)
+	img_tile_nestegg	= myimg("data/tile-nestegg.png"		)
+	img_tile_nest		= myimg("data/tile-nest.png"		)
 	
 	img_mob_att			= myimg("data/mob-att.png"			)
 	img_mob_def			= myimg("data/mob-def.png"			)
@@ -76,13 +83,12 @@ function love.load()
 	img_tile_cave_exit	= myimg("data/tile-cave-exit.png"	)
 	img_tile_cave_floor	= myimg("data/tile-cave-floor.png"	)
 	img_tile_cave_wall	= myimg("data/tile-cave-wall.png"	)
-	img_tile_djungle	= myimg("data/tile-djungle.png"		)
-	img_tile_grass		= myimg("data/tile-grass.png"		)
-	img_tile_nestegg	= myimg("data/tile-nestegg.png"		)
-	img_tile_nest		= myimg("data/tile-nest.png"		)
-	img_tile_sand		= myimg("data/tile-sand.png"		)
+	
 	img_tile_water		= myimg("data/tile-water.png"		)
 	img_tile_sand_water	= myimg("data/tile-sand-water.png"	)
+	img_tile_sand		= myimg("data/tile-sand.png"		)
+	img_tile_grass		= myimg("data/tile-grass.png"		)
+	img_tile_djungle	= myimg("data/tile-djungle.png"		)
 	
 	img_screen_title	= myimg("data/screen-title.jpg"		)
 end
