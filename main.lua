@@ -4,10 +4,12 @@ love.filesystem.load("lib.oop.lua")()
 
 kTileSize = 64
 SPEED_PLAYER = 200 -- pixels per second
-SPEED_ENEMY = SPEED_PLAYER*0.8 -- pixels per second
+SPEED_ENEMY = SPEED_PLAYER*0.5 -- pixels per second
 STOPDIST_PLAYER_MOUSE = 20 -- pixels
 STOPDIST_ENEMY_TARGET = 20 -- pixels
 ENEMY_SPREAD_DIST = kTileSize*1.0 -- pixels, enemies try to keep distance from each other
+DT_MAX = 0.1 -- avoid jumps when lag
+ENEMY_ATTACK_RANGE = kTileSize*1.0
 
 gKeyPressed = {}
 gTitleScreen = true
@@ -96,6 +98,7 @@ function love.keyreleased( key )
 end
 
 function love.update( dt )
+	if (dt > DT_MAX) then dt = DT_MAX end
 	local t = love.timer.getTime()
 	gSecondsSinceLastFrame = gCurTime and min(0.1,t-gCurTime) or 0
 	gCurTime = t
@@ -293,6 +296,9 @@ function cMobEnemy:Step (dt)
 	if (d < ENEMY_SPREAD_DIST) then self:WalkAwayFromMob(other,SPEED_ENEMY,9999,dt) bWalkToPlayer = false end
 	
 	if (bWalkToPlayer) then self:WalkToMob(gPlayer,SPEED_ENEMY,STOPDIST_ENEMY_TARGET,dt) end
+	
+	local bAttack = self:DistToMob(gPlayer) < ENEMY_ATTACK_RANGE
+	self.hitting = bAttack
 end
 
 -- ***** ***** ***** ***** ***** cMobPlayer
