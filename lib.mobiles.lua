@@ -52,13 +52,23 @@ function cMobBase:WalkToPos_Aux (x,y,speed,stopdist,dt,dirmod)
 	if ((dirmod < 0 and d < stopdist) or d > stopdist) then 
 		ax = dirmod * (x - self.x) * s / d
 		ay = dirmod * (y - self.y) * s / d
-		self.x = self.x + ax
-		self.y = self.y + ay
+		self:SetNewPos(self.x + ax,self.y + ay)
 		self.walking = (ax ~= 0) or (ay ~= 0)
 		return true
 	else
 		return false
 	end
+end
+
+function cMobBase:SetNewPos (nx,ny) 
+	local area = self.area or gCurArea
+	if (not area:PositionIsValid(nx,ny)) then 
+			if (area:PositionIsValid(nx,self.y)) then ny = self.y
+		elseif (area:PositionIsValid(self.x,ny)) then nx = self.x
+		else nx = self.x ny = self.y end -- blocked
+	end
+	self.x = nx
+	self.y = ny
 end
 	
 function cMobBase:AddHitVel (dx,dy) 
@@ -69,8 +79,7 @@ function cMobBase:AddHitVel (dx,dy)
 end
 
 function cMobBase:VelStep (dt) 
-	self.x = self.x + dt*self.vx
-	self.y = self.y + dt*self.vy
+	self:SetNewPos(self.x + dt*self.vx,self.y + dt*self.vy)
 	self.vx = self.vx * VEL_DAMP
 	self.vy = self.vy * VEL_DAMP
 end

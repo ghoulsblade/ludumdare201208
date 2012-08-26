@@ -10,6 +10,8 @@ end
 
 function cAreaBase:OnEnter () end
 function cAreaBase:Update (dt) end
+function cAreaBase:PositionIsValid	(x,y) return true end
+function cAreaBase:IsWalkable		(tx,ty) return true end
 
 function cAreaBase:GetNearestEnemyToPos (x,y,skip)
 	local found_dist
@@ -135,6 +137,7 @@ function cAreaDungeon:GenerateDungeonRooms()
 	self:MakeRoom(0,0,5, 0,1,(random(2) == 1) and cItemGeneRed or cItemGeneBlue)
 end
 
+function cAreaDungeon:PositionIsValid (x,y) return self:IsWalkable(floor(x/kTileSize),floor(y/kTileSize)) end
 function cAreaDungeon:IsWalkable (tx,ty) return self.floor[tx..","..ty] end
 function cAreaDungeon:SetFloor (tx,ty) self.floor[tx..","..ty] = true end
 
