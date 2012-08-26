@@ -67,6 +67,7 @@ function love.load()
 	img_shadow			= myimg("data/shadow.png"			)
 	
 	img_tile_cave		= myimg("data/tile-cave.png"		)
+	img_tile_cave_exit	= myimg("data/tile-cave-exit.png"	)
 	img_tile_cave_floor	= myimg("data/tile-cave-floor.png"	)
 	img_tile_cave_wall	= myimg("data/tile-cave-wall.png"	)
 	img_tile_djungle	= myimg("data/tile-djungle.png"		)
