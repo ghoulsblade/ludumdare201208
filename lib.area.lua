@@ -134,7 +134,19 @@ end
 
 
 function cAreaDungeon:GenerateDungeonRooms()
-	self:MakeRoom(0,0,5, 0,1,(random(2) == 1) and cItemGeneRed or cItemGeneBlue)
+	local emin = floor(self.level / 5)
+	local emax = 1+ceil(self.level / 5)
+	local e = DUNGEON_GRID_SIZE
+	
+	-- returns num_red,num_blue   randomized
+	local function enum () local r = randirange(emin,emax) return r,max(0,randirange(emin-r,emax-r)) end
+	
+	
+	self:MakeRoom(0*e,0*e,DUNGEON_ROOM_MAXR, 0,0,nil)
+	local r,b = enum() 
+	local tx,ty = 1,0
+	self:MakeTunnel(0*e,0*e,tx*e,ty*e,randirange(DUNGEON_TUNNEL_MINW,DUNGEON_TUNNEL_MAXW))
+	self:MakeRoom(tx*e,ty*e,DUNGEON_ROOM_MAXR, r,b,(random(2) == 1) and cItemGeneRed or cItemGeneBlue)
 end
 
 function cAreaDungeon:PositionIsValid (x,y) return self:IsWalkable(floor(x/kTileSize),floor(y/kTileSize)) end
@@ -147,6 +159,24 @@ function cAreaDungeon:GetRandomWalkablePos (tx0,ty0,r)
 		local tx = floor(tx0-r+2*r*random())
 		local ty = floor(ty0-r+2*r*random())
 		if (self:IsWalkable(tx,ty)) then return tx,ty end
+	end
+end
+
+-- line with thickness r
+function cAreaDungeon:MakeTunnel (tx0,ty0,tx1,ty1,r)
+	local dx = tx1-tx0
+	local dy = ty1-ty0
+	if (dx == 0 and dy == 0) then return end
+	local step = 1/max(abs(dx),abs(dy))
+	local bHorizontal = abs(dx) > abs(dy)
+	for f = 0,1,step do
+		local tx = tx0 + f*dx
+		local ty = ty0 + f*dy
+		if (bHorizontal) then 
+			for a=-r,r do self:SetFloor(tx,ty+a) end
+		else
+			for a=-r,r do self:SetFloor(tx+a,ty) end
+		end
 	end
 end
 
