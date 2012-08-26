@@ -29,25 +29,24 @@ function cAreaOverworld:Init ()
 end
 
 
-function cAreaOverworld:Draw (vw,vh)
+function cAreaOverworld:Draw ()
+	local vw = gScreenW
+	local vh = gScreenH
 	-- background
 	local e = kTileSize
 	local txmin = floor((gCamX)/kTileSize)
-	local txmax = ceil((gCamX+vw)/kTileSize)
+	local txmax = ceil( (gCamX+vw)/kTileSize)
 	local tymin = floor((gCamY)/kTileSize)
-	local tymax = ceil((gCamY+vh)/kTileSize)
+	local tymax = ceil( (gCamY+vh)/kTileSize)
 	for tx = txmin,txmax do 
-	for ty = tymin,tymax do 
 		local tile = img_tile_water
 		if (tx == OVERWORLD_TX_SAND) then tile = img_tile_sand_water end
 		if (tx  > OVERWORLD_TX_SAND) then tile = img_tile_sand end
 		if (tx  > OVERWORLD_TX_GRASS) then tile = img_tile_grass end
 		if (tx  > OVERWORLD_TX_DJUNGLE) then tile = img_tile_djungle end
-		
-		
-
-		love.graphics.draw(tile, e*tx-gCamX,e*ty-gCamY)
-	end
+		for ty = tymin,tymax do 
+			love.graphics.draw(tile, e*tx-gCamX,e*ty-gCamY)
+		end
 	end
 end
 
@@ -90,7 +89,9 @@ function cAreaDungeon:Update (dt)
 	CamSetTarget(gPlayer.x-vw/2,gPlayer.y-vh/2)
 end
 
-function cAreaDungeon:Draw (vw,vh)
+function cAreaDungeon:Draw ()
+	local vw = gScreenW
+	local vh = gScreenH
 	-- background
 	local e = kTileSize
 	for ty = 0,vh/kTileSize do 

@@ -21,7 +21,7 @@ PLAYER_ATTACK_INTERVAL = 0.2 -- seconds
 MOBILE_ATTACK_INTERVAL = 0.2 -- seconds
 MOBILE_ATTACK_ANIM_DUR = 0.1 -- seconds
 PLAYER_START_DEF = 5
-CAM_DAMP = 0.98
+CAM_DAMP = 0.9
 
 OVERWORLD_TX_SAND = 1
 OVERWORLD_TX_GRASS = 1*15
@@ -93,7 +93,6 @@ function love.load()
 	img_screen_title	= myimg("data/screen-title.jpg"		)
 	
 	UpdateScreenSize()
-	print("love.load screensize",gScreenW,gScreenH)
 end
 
 function UpdateScreenSize ()
@@ -164,10 +163,7 @@ function love.draw()
 	gCurTime = love.timer.getTime()
 	if (gTitleScreen) then love.graphics.draw(img_screen_title, 0,0) return end
 	
-	local vw = gScreenW
-	local vh = gScreenH
-	
-	gCurArea:Draw(vw,vh)
+	gCurArea:Draw()
 	
 	local hover_dy = GetHoverDY(2)
 	
