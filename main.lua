@@ -67,7 +67,7 @@ sin = math.sin
 cos = math.cos
 random = math.random
 
-function GfxSetPixelArtFilter (gfx) gfx:setFilter("nearest","nearest") return gfx end
+function GfxSetPixelArtFilter (gfx,bLinear) if (not bLinear) then gfx:setFilter("nearest","nearest") end return gfx end
 
 
 
@@ -75,11 +75,13 @@ function GfxSetPixelArtFilter (gfx) gfx:setFilter("nearest","nearest") return gf
 -- ***** ***** ***** ***** ***** love.load
 
 function love.load()
-	local function myimg (path) return GfxSetPixelArtFilter(love.graphics.newImage(path)) end
+	local function myimg (path,bLinear) return GfxSetPixelArtFilter(love.graphics.newImage(path),bLinear) end
 	img_genes_blue		= myimg("data/genes-blue.png"		)
 	img_genes_red		= myimg("data/genes-red.png"		)
 	img_tile_nest		= myimg("data/tile-nest.png"		)
 	img_tile_nestegg	= myimg("data/tile-nestegg.png"		)
+	
+	img_dark			= myimg("data/dark.png"				,true)
 	
 	img_mob_att			= myimg("data/mob-att.png"			)
 	img_mob_def			= myimg("data/mob-def.png"			)
@@ -270,6 +272,7 @@ function love.draw()
 	for o,_ in pairs(gCurArea.items) do o:Draw(gCamX,gCamY) end
 	for o,_ in pairs(gCurArea.mobiles) do o:Draw(gCamX,gCamY) end
 	gPlayer:Draw(gCamX,gCamY)
+	gCurArea:DrawAfterEffect() -- img_dark
 	
 	
 	local ox = 10

@@ -8,6 +8,7 @@ function cAreaBase:Init ()
 	self.items = {}
 end
 
+function cAreaBase:DrawAfterEffect () end  -- img_dark
 function cAreaBase:OnEnter () end
 function cAreaBase:Update (dt) end
 function cAreaBase:PositionIsValid	(x,y) return true end
@@ -129,6 +130,10 @@ function cAreaDungeon:Draw ()
 	end
 	end
 end
+
+function cAreaDungeon:DrawAfterEffect () 
+	love.graphics.draw(img_dark,0,0, 0, gScreenW/32, gScreenH/32)
+end  -- img_dark
 
 -- ***** ***** ***** ***** ***** dungeon rooms
 
