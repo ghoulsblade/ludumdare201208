@@ -104,7 +104,13 @@ function love.load()
 	
 	img_screen_title	= myimg("data/screen-title.jpg"		)
 	
-	love.graphics.setFont(love.graphics.newFont(40))
+	if (love.web) then 
+		love.graphics.setFont(love.graphics.newFont())
+		gFontScale = 5
+	else
+		love.graphics.setFont(love.graphics.newFont(40))
+		gFontScale = 1
+	end
 	
 	UpdateScreenSize()
 end
@@ -195,12 +201,13 @@ function love.draw()
 	local oy = 2
 	local e = kTileSize
 	local b = kTileSize*2
+	local s = gFontScale
 	love.graphics.draw(img_genes_red	,ox+0*b  ,oy)
-	love.graphics.print(gCarried_Red	,ox+0*b+e,oy)
+	love.graphics.print(gCarried_Red	,ox+0*b+e,oy,0,s,s)
 	love.graphics.draw(img_genes_blue	,ox+1*b  ,oy)
-	love.graphics.print(gCarried_Blue	,ox+1*b+e,oy)
-	love.graphics.draw(img_tile_nestegg	,ox+2*b  ,oy) local txt = gEgg_Red.."/"..gEgg_Blue
-	love.graphics.print(txt				,ox+2*b+e,oy)
+	love.graphics.print(gCarried_Blue	,ox+1*b+e,oy,0,s,s)
+	love.graphics.draw(img_tile_nestegg	,ox+2*b  ,oy) local txt = gEgg_Red.." "..gEgg_Blue
+	love.graphics.print(txt				,ox+2*b+e,oy,0,s,s)
 	
 end
 
