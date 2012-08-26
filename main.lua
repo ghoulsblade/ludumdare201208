@@ -137,8 +137,6 @@ function love.update( dt )
 	gCurTime = t
 	if (gTitleScreen) then return end
 	
-	gCurArea:Update(dt)
-	
 	--[[
 	local ax,ay = 0,0
 	if (gKeyPressed["a"] or gKeyPressed["left"]) then ax = -s end
@@ -155,6 +153,7 @@ function love.update( dt )
 	for o,_ in pairs(gCurArea.items) do o:Step(dt) end
 	for o,_ in pairs(gCurArea.mobiles) do o:Step(dt) end
 	gPlayer:Step(dt)
+	gCurArea:Update(dt)
 	
 	CamStep()
 end

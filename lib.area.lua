@@ -1,4 +1,5 @@
 
+	
 -- ***** ***** ***** ***** ***** cAreaBase
 cAreaBase = CreateClass()
 
@@ -28,8 +29,12 @@ cAreaOverworld = CreateClass(cAreaBase)
 function cAreaOverworld:Init ()
 	cAreaBase.Init(self)
 	
-	cItemNest:New(self,5,8)
-	cItemCave:New(self,7,2)
+	-- generate a "few"
+	for tx=1,100 do
+		if (math.fmod(tx-2,10) == 0) then cItemCave:New(self,tx,2) end
+		if (math.fmod(tx-2,10) == 5) then cItemCave:New(self,tx,8) end
+		if (math.fmod(tx-2,20) == 0) then cItemNest:New(self,tx,8) end
+	end
 end
 
 
