@@ -21,6 +21,12 @@ PLAYER_ATTACK_INTERVAL = 0.2 -- seconds
 MOBILE_ATTACK_INTERVAL = 0.2 -- seconds
 MOBILE_ATTACK_ANIM_DUR = 0.1 -- seconds
 PLAYER_START_DEF = 5
+CAM_DAMP = 0.98 
+
+gCamX = 0
+gCamY = 0
+gCamTargetX = 0
+gCamTargetY = 0
 
 gKeyPressed = {}
 gTitleScreen = true
@@ -114,6 +120,8 @@ function love.update( dt )
 	gCurTime = t
 	if (gTitleScreen) then return end
 	
+	gCurArea:Update(dt)
+	CamStep()
 	
 	--[[
 	local ax,ay = 0,0
@@ -124,7 +132,7 @@ function love.update( dt )
 	]]--
 	
 	local x, y = love.mouse.getPosition()
-	gPlayer:WalkToPos(x,y,SPEED_PLAYER,STOPDIST_PLAYER_MOUSE,dt)
+	gPlayer:WalkToPos(x+gCamX,y+gCamY,SPEED_PLAYER,STOPDIST_PLAYER_MOUSE,dt)
 	
 	if (gKeyPressed[" "] or gMouseDownL) then gPlayer:AutoAttack() end
 	
@@ -148,14 +156,13 @@ function love.draw()
 	
 	-- spawn/nest
 	local e = kTileSize
-	local tx,ty=5,8 love.graphics.draw(img_tile_nestegg, e*tx,e*ty)
-	local tx,ty=6,5 love.graphics.draw(img_shadow, e*tx,e*ty) love.graphics.draw(img_genes_red, e*tx,floor(e*ty + 4*hover_dy))
-	local tx,ty=7,6 love.graphics.draw(img_shadow, e*tx,e*ty) love.graphics.draw(img_genes_blue, e*tx,floor(e*ty + 4*hover_dy))
+	local tx,ty=5,8 love.graphics.draw(img_tile_nestegg, e*tx-gCamX,e*ty-gCamY)
+	local tx,ty=6,5 love.graphics.draw(img_shadow, e*tx-gCamX,e*ty-gCamY) love.graphics.draw(img_genes_red, e*tx-gCamX,floor(e*ty-gCamY + 4*hover_dy))
+	local tx,ty=7,6 love.graphics.draw(img_shadow, e*tx-gCamX,e*ty-gCamY) love.graphics.draw(img_genes_blue, e*tx-gCamX,floor(e*ty-gCamY + 4*hover_dy))
+	local tx,ty=7,2 love.graphics.draw(img_tile_cave, e*tx-gCamX,e*ty-gCamY)
 	
-	local tx,ty=7,2 love.graphics.draw(img_tile_cave, e*tx,e*ty)
-	
-	for mob,_ in pairs(gCurArea.mobiles) do mob:Draw() end
-	gPlayer:Draw()
+	for mob,_ in pairs(gCurArea.mobiles) do mob:Draw(gCamX,gCamY) end
+	gPlayer:Draw(gCamX,gCamY)
 end
 
 
@@ -173,6 +180,24 @@ end
 function ChangeToArea (area)
 	gCurArea = area
 	gCurArea:OnEnter()
+end
+
+-- ***** ***** ***** ***** ***** cam
+
+function CamSetTarget (x,y,bHardReset)
+	gCamTargetX = x
+	gCamTargetY = y
+	if (bHardReset) then 
+		gCamX = x
+		gCamY = y
+	end
+end
+
+function CamStep ()
+	local f = CAM_DAMP
+	local fi = 1-CAM_DAMP
+	gCamX = f*gCamX + fi*gCamTargetX
+	gCamY = f*gCamY + fi*gCamTargetY
 end
 
 -- ***** ***** ***** ***** ***** utils

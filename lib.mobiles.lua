@@ -110,10 +110,10 @@ function cMobBase:AutoAttack () -- swing wildly and always, even if not in range
 	self:Attack(nil)
 end
 
-function cMobBase:Draw () 
+function cMobBase:Draw (camx,camy) 
 	if (self.dead) then return end
 	local ox,oy = -kTileSize/2, -kTileSize/2
-	local x,y = floor(self.x+ox),floor(self.y+oy)
+	local x,y = floor(self.x+ox-camx),floor(self.y+oy-camy)
 	love.graphics.draw(img_shadow,x,y)
 	local t = gCurTime + self.anim_random_addt -- seconds
 	local fdur = 0.1 -- frame duration, seconds

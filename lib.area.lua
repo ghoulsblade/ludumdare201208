@@ -7,6 +7,7 @@ function cAreaBase:Init ()
 end
 
 function cAreaBase:OnEnter () end
+function cAreaBase:Update (dt) end
 
 function cAreaBase:GetNearestEnemyToPos (x,y,skip)
 	local found_dist
@@ -36,9 +37,15 @@ function cAreaOverworld:Draw (vw,vh)
 		local tile = img_tile_sand
 		if (tx <  3) then tile = img_tile_water end
 		if (tx == 3) then tile = img_tile_sand_water end
-		love.graphics.draw(tile, e*tx,e*ty)
+		love.graphics.draw(tile, e*tx-gCamX,e*ty-gCamY)
 	end
 	end
+end
+
+function cAreaOverworld:Update (dt)
+	local vw = love.graphics.getWidth()
+	local vh = love.graphics.getHeight()
+	CamSetTarget(gPlayer.x-vw/2,0)
 end
 
 -- ***** ***** ***** ***** ***** cAreaDungeon
@@ -67,6 +74,12 @@ function cAreaDungeon:OnEnter ()
 	end
 end
 
+function cAreaDungeon:Update (dt)
+	local vw = love.graphics.getWidth()
+	local vh = love.graphics.getHeight()
+	CamSetTarget(gPlayer.x-vw/2,gPlayer.y-vh/2)
+end
+
 function cAreaDungeon:Draw (vw,vh)
 	-- background
 	local e = kTileSize
@@ -74,7 +87,7 @@ function cAreaDungeon:Draw (vw,vh)
 	for tx = 0,vw/kTileSize do 
 		local tile = img_tile_cave_floor
 		if (self.walls[tx..","..ty]) then tile = img_tile_cave_wall end
-		love.graphics.draw(tile, e*tx,e*ty)
+		love.graphics.draw(tile, e*tx-gCamX,e*ty-gCamY)
 	end
 	end
 end
