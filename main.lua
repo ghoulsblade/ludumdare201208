@@ -10,10 +10,11 @@ STOPDIST_ENEMY_TARGET = 20 -- pixels
 ENEMY_SPREAD_DIST = kTileSize*1.0 -- pixels, enemies try to keep distance from each other
 DT_MAX = 0.1 -- avoid jumps when lag
 ENEMY_ATTACK_RANGE = kTileSize*1.0
-PLAYER_ATTACK_RANGE = ENEMY_ATTACK_RANGE*1.2 -- enemy reacts faster so give a little bonus
+PLAYER_ATTACK_RANGE = ENEMY_ATTACK_RANGE*1.5 -- enemy reacts faster so give a little bonus
 VEL_HIT = SPEED_PLAYER * 2 -- velocity added/set when someone is hit
 VEL_DAMP = 0.95
-MOBILE_ATTACK_INTERVAL = 0.3 -- seconds
+PLAYER_ATTACK_INTERVAL = 0.2 -- seconds
+MOBILE_ATTACK_INTERVAL = 0.2 -- seconds
 MOBILE_ATTACK_ANIM_DUR = 0.1 -- seconds
 
 gKeyPressed = {}
@@ -348,7 +349,10 @@ end
 
 -- ***** ***** ***** ***** ***** cMobPlayer
 cMobPlayer = CreateClass(cMobBase)
-function cMobPlayer:Init (...) cMobBase.Init(self,...) end
+function cMobPlayer:Init (...) 
+	cMobBase.Init(self,...) 
+	self.attack_interval = PLAYER_ATTACK_INTERVAL
+end
 
 function cMobPlayer:AutoAttack () -- swing wildly and always, even if not in range, used by player when holding down key
 	local mob,d = GetNearestEnemyToPos(self.x,self.y,self)
