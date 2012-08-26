@@ -133,20 +133,51 @@ end
 -- ***** ***** ***** ***** ***** dungeon rooms
 
 
-function cAreaDungeon:GenerateDungeonRooms()
+-- returns num_red,num_blue
+function cAreaDungeon:RandomEnemyNum ()
 	local emin = floor(self.level / 5)
-	local emax = 1+ceil(self.level / 5)
-	local e = DUNGEON_GRID_SIZE
+	local emax = 2+ceil(self.level / 4)
+	local r = randirange(emin,emax) 
+	local b = max(0,randirange(emin-r,emax-r))
+	return r,b
+end
+
+function cAreaDungeon:GenerateDungeonRooms()
+	self.room_list = {}
+	self:MakeRoom(0,0,DUNGEON_ROOM_MAXR, 0,0,nil)
 	
-	-- returns num_red,num_blue   randomized
-	local function enum () local r = randirange(emin,emax) return r,max(0,randirange(emin-r,emax-r)) end
+	for i=1,4 do self:AppendRandomRoom((random(10) == 1) and cItemGeneBlue) end
+	self:AppendRandomRoom(cItemGeneRed) -- at the end, or at least somewhere deeeep in ;)
+end
+
+function cAreaDungeon:AppendRandomRoom(itemclass)
+	if (#self.room_list <= 0) then return end
+	for i=1,10 do -- 10 tries
+		-- pick random start room
+		local startroom = self.room_list[random(#self.room_list)]
+		if (not startroom) then return end
+		local tx0,ty0 = unpack(startroom)
 	
-	
-	self:MakeRoom(0*e,0*e,DUNGEON_ROOM_MAXR, 0,0,nil)
-	local r,b = enum() 
-	local tx,ty = 1,0
-	self:MakeTunnel(0*e,0*e,tx*e,ty*e,randirange(DUNGEON_TUNNEL_MINW,DUNGEON_TUNNEL_MAXW))
-	self:MakeRoom(tx*e,ty*e,DUNGEON_ROOM_MAXR, r,b,(random(2) == 1) and cItemGeneRed or cItemGeneBlue)
+		-- pick random direction
+		local dx,dy = 0,0
+		local e = DUNGEON_GRID_SIZE
+		if (random(2) == 1) then 
+			dx = (random(2) == 1) and e or -e 
+		else
+			dy = (random(2) == 1) and e or -e 
+		end
+		--~ local dx = randirange(-1,1)*e
+		--~ local dy = randirange(-1,1)*e
+		local tx,ty = tx0+dx,ty0+dy
+		
+		-- check if no room there already
+		if (not self:IsWalkable(tx,ty)) then 
+			local r,b = self:RandomEnemyNum() 
+			self:MakeTunnel(tx0,ty0,tx,ty,randirange(DUNGEON_TUNNEL_MINW,DUNGEON_TUNNEL_MAXW))
+			self:MakeRoom(tx,ty,randirange(DUNGEON_ROOM_MINR,DUNGEON_ROOM_MAXR), r,b,itemclass)
+			return
+		end
+	end
 end
 
 function cAreaDungeon:PositionIsValid (x,y) return self:IsWalkable(floor(x/kTileSize),floor(y/kTileSize)) end
@@ -163,25 +194,31 @@ function cAreaDungeon:GetRandomWalkablePos (tx0,ty0,r)
 end
 
 -- line with thickness r
-function cAreaDungeon:MakeTunnel (tx0,ty0,tx1,ty1,r)
+function cAreaDungeon:MakeTunnel (tx0,ty0,tx1,ty1,w)
+	--~ print("make tunnel",tx0,ty0,tx1,ty1,w)
 	local dx = tx1-tx0
 	local dy = ty1-ty0
 	if (dx == 0 and dy == 0) then return end
 	local step = 1/max(abs(dx),abs(dy))
-	local bHorizontal = abs(dx) > abs(dy)
-	for f = 0,1,step do
-		local tx = tx0 + f*dx
-		local ty = ty0 + f*dy
-		if (bHorizontal) then 
-			for a=-r,r do self:SetFloor(tx,ty+a) end
-		else
-			for a=-r,r do self:SetFloor(tx+a,ty) end
+	if (abs(dx) > abs(dy)) then  -- bHorizontal
+		for tx = min(tx0,tx1),max(tx0,tx1) do
+			local f = (tx - tx0) / (tx1 - tx0)
+			local ty = floor(ty0 + f*dy)
+			for a=1,w do self:SetFloor(tx,ty+a-floor(w/2)) end
+		end
+	else
+		for ty = min(ty0,ty1),max(ty0,ty1) do
+			local f = (ty - ty0) / (ty1 - ty0)
+			local tx = floor(tx0 + f*dx)
+			for a=1,w do self:SetFloor(tx+a-floor(w/2),ty) end
 		end
 	end
 end
 
 -- itemclass = cItemGeneRed or cItemGeneBlue
 function cAreaDungeon:MakeRoom (tx0,ty0,r, mobs_red,mobs_blue,itemclass)
+	--~ print("make room",tx0,ty0,r)
+	table.insert(self.room_list,{tx0,ty0})
 	-- floor
 	for ty=ty0-r,ty0+r do
 	for tx=tx0-r,tx0+r do

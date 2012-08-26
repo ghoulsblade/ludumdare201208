@@ -26,10 +26,11 @@ PLAYER_START_DEF = 5
 CAM_DAMP = 0.9
 ITEM_TOUCH_DIST = kTileSize
 PLAYER_RESPAWN_DELAY = 2 -- seconds
-DUNGEON_GRID_SIZE = 10
 DUNGEON_TUNNEL_MINW = 2
-DUNGEON_TUNNEL_MAXW = 4
-DUNGEON_ROOM_MAXR = math.floor(DUNGEON_GRID_SIZE/2)-1
+DUNGEON_TUNNEL_MAXW = 2
+DUNGEON_ROOM_MINR = 2
+DUNGEON_ROOM_MAXR = 4
+DUNGEON_GRID_SIZE = 1+2*DUNGEON_ROOM_MAXR
 
 OVERWORLD_TX_SAND = 1
 OVERWORLD_TX_GRASS = 1*15
@@ -145,6 +146,7 @@ function love.keypressed( key, unicode )
     gKeyPressed[key] = true
     if (key == "escape") then os.exit(0) end
 	if (gTitleScreen) then return StartGame() end
+    if (key == "f1") then print("player pos",floor(gPlayer.x/kTileSize),floor(gPlayer.y/kTileSize)) end
 end
 
 function love.keyreleased( key )
@@ -274,7 +276,7 @@ end
 
 -- ***** ***** ***** ***** ***** utils
 
-function randirange (vmin,vmax) return vmin + floor((vmax-vmin)*random()) end
+function randirange (vmin,vmax) return min(vmax,vmin + random(vmax-vmin+1) - 1) end
 function dist2 (ax,ay,bx,by) return hypot(ax-bx,ay-by) end
 function hypot (dx,dy) return math.sqrt(dx*dx+dy*dy) end
 
