@@ -36,6 +36,8 @@ OVERWORLD_TX_SAND = 1
 OVERWORLD_TX_GRASS = 1*15
 OVERWORLD_TX_DJUNGLE = 2*15
 
+gMusic = true
+VOLUME = 1
 
 gCamX = 0
 gCamY = 0
@@ -108,6 +110,15 @@ function love.load()
 	img_tile_djungle	= myimg("data/tile-djungle.png"		)
 	
 	img_screen_title	= myimg("data/screen-title.jpg"		)
+	
+	if (gMusic) then
+		local musicpath = "data/backloop.ogg"
+		local sfx = love.audio.newSource(musicpath)
+		sfx:setLooping(true)
+		sfx:setVolume(VOLUME)
+		sfx:play()
+	end
+
 	
 	if (love.web) then 
 		fontimg = myimg("data/imgfont.png")

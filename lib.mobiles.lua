@@ -36,7 +36,14 @@ function cMobBase:DistToPos (x,y)
 	return math.sqrt(dx*dx+dy*dy)
 end
 
-function cMobBase:WalkAwayFromMob (mob,speed,stopdist,dt) return self:WalkToPos_Aux(mob.x,mob.y,speed,stopdist,dt,-1) end
+function cMobBase:WalkAwayFromMob (mob,speed,stopdist,dt) 
+	local x,y = mob.x,mob.y
+	if (x == self.x and y == self.y) then 
+		x = x + math.random()*2-1
+		y = y + math.random()*2-1
+	end
+	return self:WalkToPos_Aux(x,y,speed,stopdist,dt,-1) 
+end
 
 function cMobBase:WalkToMob (mob,speed,stopdist,dt) return self:WalkToPos(mob.x,mob.y,speed,stopdist,dt) end
 
