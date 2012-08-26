@@ -4,6 +4,7 @@ cAreaBase = CreateClass()
 
 function cAreaBase:Init ()
 	self.mobiles = {}
+	self.items = {}
 end
 
 function cAreaBase:OnEnter () end
@@ -26,6 +27,9 @@ cAreaOverworld = CreateClass(cAreaBase)
 
 function cAreaOverworld:Init ()
 	cAreaBase.Init(self)
+	
+	cItemNest:New(self,5,8)
+	cItemCave:New(self,7,2)
 end
 
 
@@ -63,6 +67,7 @@ cAreaDungeon = CreateClass(cAreaBase)
 
 function cAreaDungeon:Init ()
 	cAreaBase.Init(self)
+	self.is_dungeon = true
 end
 
 function cAreaDungeon:OnEnter ()
@@ -73,6 +78,9 @@ function cAreaDungeon:OnEnter ()
 	cMobEnemy:New(self,img_mob_att, 4,4, 2,1)
 	cMobEnemy:New(self,img_mob_def, 6,4, 1,2)
 	cMobEnemy:New(self,img_mob_def, 7,1, 1,2)
+	
+	cItemGeneRed:New(self,6,5)
+	cItemGeneBlue:New(self,7,6)
 	
 	-- walls
 	self.walls = {}

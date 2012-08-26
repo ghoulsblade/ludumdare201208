@@ -2,6 +2,7 @@
 
 love.filesystem.load("lib.oop.lua")()
 love.filesystem.load("lib.mobiles.lua")()
+love.filesystem.load("lib.items.lua")()
 love.filesystem.load("lib.area.lua")()
 
 kTileSize = 64
@@ -151,7 +152,8 @@ function love.update( dt )
 	
 	if (gKeyPressed[" "] or gMouseDownL) then gPlayer:AutoAttack() end
 	
-	for mob,_ in pairs(gCurArea.mobiles) do mob:Step(dt) end
+	for o,_ in pairs(gCurArea.items) do o:Step(dt) end
+	for o,_ in pairs(gCurArea.mobiles) do o:Step(dt) end
 	gPlayer:Step(dt)
 	
 	CamStep()
@@ -165,16 +167,8 @@ function love.draw()
 	
 	gCurArea:Draw()
 	
-	local hover_dy = GetHoverDY(2)
-	
-	-- spawn/nest
-	local e = kTileSize
-	local tx,ty=5,8 love.graphics.draw(img_tile_nestegg, e*tx-gCamX,e*ty-gCamY)
-	local tx,ty=6,5 love.graphics.draw(img_shadow, e*tx-gCamX,e*ty-gCamY) love.graphics.draw(img_genes_red, e*tx-gCamX,floor(e*ty-gCamY + 4*hover_dy))
-	local tx,ty=7,6 love.graphics.draw(img_shadow, e*tx-gCamX,e*ty-gCamY) love.graphics.draw(img_genes_blue, e*tx-gCamX,floor(e*ty-gCamY + 4*hover_dy))
-	local tx,ty=7,2 love.graphics.draw(img_tile_cave, e*tx-gCamX,e*ty-gCamY)
-	
-	for mob,_ in pairs(gCurArea.mobiles) do mob:Draw(gCamX,gCamY) end
+	for o,_ in pairs(gCurArea.items) do o:Draw(gCamX,gCamY) end
+	for o,_ in pairs(gCurArea.mobiles) do o:Draw(gCamX,gCamY) end
 	gPlayer:Draw(gCamX,gCamY)
 end
 
