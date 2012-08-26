@@ -10,6 +10,11 @@ STOPDIST_ENEMY_TARGET = 20 -- pixels
 ENEMY_SPREAD_DIST = kTileSize*1.0 -- pixels, enemies try to keep distance from each other
 DT_MAX = 0.1 -- avoid jumps when lag
 ENEMY_ATTACK_RANGE = kTileSize*1.0
+PLAYER_ATTACK_RANGE = ENEMY_ATTACK_RANGE
+VEL_HIT = SPEED_PLAYER * 2 -- velocity added/set when someone is hit
+VEL_DAMP = 0.95
+MOBILE_ATTACK_INTERVAL = 0.3 -- seconds
+MOBILE_ATTACK_ANIM_DUR = 0.1 -- seconds
 
 gKeyPressed = {}
 gTitleScreen = true
@@ -92,6 +97,8 @@ function love.keypressed( key, unicode )
     gKeyPressed[key] = true
     if (key == "escape") then os.exit(0) end
 	if (gTitleScreen) then return StartGame() end
+	
+	--~ if (key == "g") then gPlayer:AddHitVel(-1,0) end
 end
 function love.keyreleased( key )
     gKeyPressed[key] = nil
@@ -116,7 +123,7 @@ function love.update( dt )
 	local x, y = love.mouse.getPosition()
 	gPlayer:WalkToPos(x,y,SPEED_PLAYER,STOPDIST_PLAYER_MOUSE,dt)
 	
-	gPlayer.hitting = gKeyPressed[" "] or  gMouseDownL
+	if (gKeyPressed[" "] or gMouseDownL) then gPlayer:AutoAttack() end
 	
 	for mob,_ in pairs(gMobiles) do mob:Step(dt) end
 	
@@ -218,10 +225,15 @@ function cMobBase:Init (img,x,y)
 	self.img = img
 	self.x = x
 	self.y = y
+	self.vx = 0
+	self.vy = 0
+	self.next_attack = 0
+	self.attack_interval = MOBILE_ATTACK_INTERVAL
+	self.attack_anim_until = 0
+	self.attack_anim_dur = MOBILE_ATTACK_ANIM_DUR
 	gMobiles[self] = true
 	self.img_face = (math.random() < 0.3) and img_part_face_oh or img_part_face_grr
 	self.anim_random_addt = math.random() -- seconds
-	self.hitting = false
 	self.walking = false
 	self.breathe_dt = 3 + 2*math.random() -- seconds
 end 
@@ -253,7 +265,41 @@ function cMobBase:WalkToPos_Aux (x,y,speed,stopdist,dt,dirmod)
 	self.walking = (ax ~= 0) or (ay ~= 0)
 end
 	
+function cMobBase:AddHitVel (dx,dy) 
+	local d = math.sqrt(dx*dx+dy*dy)
+	if (d <= 0) then return end
+	self.vx = self.vx + VEL_HIT*dx/d
+	self.vy = self.vy + VEL_HIT*dy/d
+end
+
+function cMobBase:VelStep (dt) 
+	self.x = self.x + dt*self.vx
+	self.y = self.y + dt*self.vy
+	self.vx = self.vx * VEL_DAMP
+	self.vy = self.vy * VEL_DAMP
+end
+
 function cMobBase:Step (dt) 
+	self:VelStep(dt)
+end
+
+function cMobBase:VectorToMob (mob) return mob.x-self.x,mob.y-self.y end
+
+function cMobBase:Attack (mob) 
+	if (self.next_attack > gCurTime) then return end
+	
+	self.next_attack = gCurTime + self.attack_interval
+	self.attack_anim_until = gCurTime + self.attack_anim_dur
+	if (mob) then 
+		mob:AddHitVel(self:VectorToMob(mob))
+	end
+	-- TODO : sound
+end
+
+
+function cMobBase:AutoAttack () -- swing wildly and always, even if not in range, used by player when holding down key
+	local mob = nil -- TODO: nearest enemy
+	self:Attack(mob)
 end
 
 function cMobBase:Draw () 
@@ -278,8 +324,8 @@ function cMobBase:Draw ()
 	
 	
 	love.graphics.draw(img_part_shield,x,breathe_y)
-	if (self.hitting) then 
-		love.graphics.draw(anim_frame(t,{img_part_sword,img_part_sword2},fdur),x+sword_ox,breathe_y)
+	if (self.attack_anim_until > gCurTime) then 
+		love.graphics.draw(img_part_sword2,x+sword_ox,breathe_y)
 	else
 		love.graphics.draw(img_part_sword,x+sword_ox,breathe_y)
 	end
@@ -291,14 +337,14 @@ function cMobEnemy:Init (...) cMobBase.Init(self,...) self.is_enemy = true end
 
 function cMobEnemy:Step (dt)
 	local bWalkToPlayer = true 
+	self:VelStep(dt)
 	
 	local other,d = GetNearestEnemyToPos(self.x,self.y,self)
 	if (d < ENEMY_SPREAD_DIST) then self:WalkAwayFromMob(other,SPEED_ENEMY,9999,dt) bWalkToPlayer = false end
 	
 	if (bWalkToPlayer) then self:WalkToMob(gPlayer,SPEED_ENEMY,STOPDIST_ENEMY_TARGET,dt) end
 	
-	local bAttack = self:DistToMob(gPlayer) < ENEMY_ATTACK_RANGE
-	self.hitting = bAttack
+	if (self:DistToMob(gPlayer) < ENEMY_ATTACK_RANGE) then self:Attack(gPlayer) end
 end
 
 -- ***** ***** ***** ***** ***** cMobPlayer
