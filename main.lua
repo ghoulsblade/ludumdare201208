@@ -21,9 +21,11 @@ VEL_DAMP = 0.95
 PLAYER_ATTACK_INTERVAL = 0.2 -- seconds
 MOBILE_ATTACK_INTERVAL = 0.2 -- seconds
 MOBILE_ATTACK_ANIM_DUR = 0.1 -- seconds
+PLAYER_START_ATT = 1
 PLAYER_START_DEF = 5
 CAM_DAMP = 0.9
 ITEM_TOUCH_DIST = kTileSize
+PLAYER_RESPAWN_DELAY = 2 -- seconds
 
 OVERWORLD_TX_SAND = 1
 OVERWORLD_TX_GRASS = 1*15
@@ -34,6 +36,13 @@ gCamX = 0
 gCamY = 0
 gCamTargetX = 0
 gCamTargetY = 0
+
+gCarried_Blue 	= 0
+gCarried_Red  	= 0
+gEgg_Blue 		= 0
+gEgg_Red  		= 0
+gEgg_TX			= 4
+gEgg_TY			= 6
 
 gKeyPressed = {}
 gTitleScreen = true
@@ -139,6 +148,11 @@ function love.update( dt )
 	gCurTime = t
 	if (gTitleScreen) then return end
 	
+	if (gRepawnTime and gRepawnTime < gCurTime) then 
+		gRepawnTime = nil
+		PlayerRespawn()
+	end
+	
 	if (not gPlayer.dead) then 
 		--[[
 		local ax,ay = 0,0
@@ -184,12 +198,22 @@ function StartGame ()
 	gAreaOverworld = cAreaOverworld:New()
 	ChangeToArea(gAreaOverworld)
  
-	gPlayer = cMobPlayer:New(nil,img_mob_player, 4,6)
+	PlayerRespawn()
 end
 
 function ChangeToArea (area)
 	gCurArea = area
 	gCurArea:OnEnter()
+end
+
+function PlayerRespawn()
+	gCarried_Blue 	= gEgg_Blue
+	gCarried_Red  	= gEgg_Red
+	ChangeToArea(gAreaOverworld)
+	gPlayer = cMobPlayer:New(nil,img_mob_player, gEgg_TX,gEgg_TY)
+	gPlayer.att = PLAYER_START_ATT + gEgg_Red
+	gPlayer.def = PLAYER_START_DEF + gEgg_Blue * 2
+	gAreaOverworld:MoveCamToPlayer(true)
 end
 
 -- ***** ***** ***** ***** ***** cam

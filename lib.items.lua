@@ -33,6 +33,9 @@ function cItemBase:Draw (camx,camy)
 	if (self.hover_h) then y = floor(y + GetHoverDY(2)*self.hover_h) end
 	love.graphics.draw(self.img, x,y)
 end
+function cItemBase:Destroy () 	
+	self.area.items[self] = nil
+end
 
 -- ***** ***** ***** ***** ***** items
 cItemNest = CreateClass(cItemBase)
@@ -52,7 +55,24 @@ function cItemCaveExit:Init (...) cItemBase.Init(self,...) self.img = img_tile_c
 function cItemGeneRed:Init (...) cItemBase.Init(self,...) self.img = img_genes_red self.hover_h = 4 self.shadow = true end
 function cItemGeneBlue:Init (...) cItemBase.Init(self,...) self.img = img_genes_blue self.hover_h = 4 self.shadow = true end
 
-function cItemNest:OnTouch () self.img = img_tile_nestegg end
+function cItemGeneRed:OnTouch ()
+	gCarried_Red = gCarried_Red + 1
+	self:Destroy()
+end
+
+function cItemGeneBlue:OnTouch ()
+	gCarried_Blue = gCarried_Blue + 1
+	self:Destroy()
+end
+
+function cItemNest:OnTouch ()
+	self.img = img_tile_nestegg 
+	
+	gEgg_Blue 		= gCarried_Blue 	
+	gEgg_Red  		= gCarried_Red  	
+	gEgg_TX			= floor(self.x / kTileSize)
+	gEgg_TY			= floor(self.y / kTileSize)
+end
 
 function cItemCaveExit:OnTouch ()
 	if (self.touched) then return end -- initial touch-block

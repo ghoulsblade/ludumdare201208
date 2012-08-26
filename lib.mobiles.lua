@@ -107,8 +107,11 @@ function cMobBase:TakeDamage (dmg,attacker)
 	end
 end
 
+function cMobBase:NotifyDeath (attacker)  end
+
 function cMobBase:Die (attacker) 
 	self.dead = true -- die
+	self:NotifyDeath(attacker)
 end
 
 function cMobBase:AutoAttack () -- swing wildly and always, even if not in range, used by player when holding down key
@@ -190,7 +193,6 @@ cMobPlayer = CreateClass(cMobBase)
 function cMobPlayer:Init (...) 
 	cMobBase.Init(self,...)
 	self.attack_interval = PLAYER_ATTACK_INTERVAL
-	self.def = PLAYER_START_DEF
 end
 
 function cMobPlayer:AutoAttack () -- swing wildly and always, even if not in range, used by player when holding down key
@@ -200,4 +202,5 @@ function cMobPlayer:AutoAttack () -- swing wildly and always, even if not in ran
 	self:Attack(mob)
 end
 
+function cMobPlayer:NotifyDeath (attacker) gRepawnTime = gCurTime + PLAYER_RESPAWN_DELAY  end
 
