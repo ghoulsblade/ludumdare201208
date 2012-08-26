@@ -59,10 +59,14 @@ function cAreaOverworld:Draw ()
 	end
 end
 
-function cAreaOverworld:Update (dt)
+function cAreaOverworld:MoveCamToPlayer (bForceReset)
 	local vw = gScreenW
 	local vh = gScreenH
-	if (not gPlayer.dead) then CamSetTarget(gPlayer.x-vw/2,0) end
+	CamSetTarget(gPlayer.x-vw/2,0,bForceReset)
+end
+
+function cAreaOverworld:Update (dt)
+	if (not gPlayer.dead) then self:MoveCamToPlayer() end
 	if (gPlayer.x < (OVERWORLD_TX_SAND-2)*kTileSize) then gPlayer:EnvDamage(1,1,0) end
 end
 
@@ -76,12 +80,6 @@ function cAreaDungeon:Init ()
 end
 
 function cAreaDungeon:OnEnter ()
-	gPlayer.x = 0
-	gPlayer.y = 0
-	local vw = gScreenW
-	local vh = gScreenH
-	CamSetTarget(gPlayer.x-vw/2,gPlayer.y-vh/2,true)
-
 	if (self.init_done) then return end
 	-- generate dungeon on first enter
 	self.init_done = true
@@ -108,10 +106,14 @@ function cAreaDungeon:OnEnter ()
 end
 
 function cAreaDungeon:Update (dt)
+	if (not gPlayer.dead) then self:MoveCamToPlayer() end
+end
+
+
+function cAreaDungeon:MoveCamToPlayer (bForceReset)
 	local vw = gScreenW
 	local vh = gScreenH
-	
-	if (not gPlayer.dead) then CamSetTarget(gPlayer.x-vw/2,gPlayer.y-vh/2) end
+	CamSetTarget(gPlayer.x-vw/2,gPlayer.y-vh/2,bForceReset)
 end
 
 function cAreaDungeon:Draw ()

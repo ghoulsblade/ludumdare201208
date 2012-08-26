@@ -21,7 +21,7 @@ end
 function cItemBase:OnTouch () end
 function cItemBase:Step (dt) 
 	if (gPlayer.dead) then return end
-	if (gPlayer:DistToPos(self.x,self.y) < ITEM_TOUCH_DIST) then self:OnTouch() end
+	if (gPlayer:DistToPos(self.x,self.y) < ITEM_TOUCH_DIST) then self:OnTouch() else self.touched = false end
 end
 
 function cItemBase:Draw (camx,camy) 
@@ -56,7 +56,21 @@ function cItemGeneBlue:Init (...) cItemBase.Init(self,...) self.img = img_genes_
 
 function cItemNest:OnTouch () self.img = img_tile_nestegg end
 
+function cItemCaveExit:OnTouch ()
+	if (self.touched) then return end -- initial touch-block
+	ChangeToArea(gAreaOverworld)
+	self.area.entrance.touched = true
+	gPlayer.x = self.area.entrance.x
+	gPlayer.y = self.area.entrance.y
+	gAreaOverworld:MoveCamToPlayer(true)
+end
+
 function cItemCave:OnTouch ()
+	if (self.touched) then return end -- initial touch-block
 	ChangeToArea(self.dungeon)
+	self.dungeon.exit.touched = true
+	gPlayer.x = 0
+	gPlayer.y = 0
+	self.dungeon:MoveCamToPlayer(true)
 end
 
