@@ -8,6 +8,7 @@ SPEED_PLAYER = 200 -- pixels per second
 SPEED_ENEMY = SPEED_PLAYER*0.5 -- pixels per second
 STOPDIST_PLAYER_MOUSE = 20 -- pixels
 STOPDIST_ENEMY_TARGET = 20 -- pixels
+HUNTDIST_ENEMY_TARGET = 200 -- pixels
 ENEMY_SPREAD_DIST = kTileSize*1.0 -- pixels, enemies try to keep distance from each other
 DT_MAX = 0.1 -- avoid jumps when lag
 ENEMY_ATTACK_RANGE = kTileSize*1.0
@@ -235,6 +236,8 @@ function cMobBase:Init (img,x,y,att,def)
 	self.def = def or 1
 	self.x = x
 	self.y = y
+	self.start_x = x
+	self.start_y = y
 	self.vx = 0
 	self.vy = 0
 	self.next_attack = 0
@@ -254,11 +257,11 @@ function cMobBase:DistToPos (x,y)
 	return math.sqrt(dx*dx+dy*dy)
 end
 
-function cMobBase:WalkAwayFromMob (mob,speed,stopdist,dt) self:WalkToPos_Aux(mob.x,mob.y,speed,stopdist,dt,-1) end
+function cMobBase:WalkAwayFromMob (mob,speed,stopdist,dt) return self:WalkToPos_Aux(mob.x,mob.y,speed,stopdist,dt,-1) end
 
-function cMobBase:WalkToMob (mob,speed,stopdist,dt) self:WalkToPos(mob.x,mob.y,speed,stopdist,dt) end
+function cMobBase:WalkToMob (mob,speed,stopdist,dt) return self:WalkToPos(mob.x,mob.y,speed,stopdist,dt) end
 
-function cMobBase:WalkToPos (x,y,speed,stopdist,dt) self:WalkToPos_Aux(x,y,speed,stopdist,dt) end
+function cMobBase:WalkToPos (x,y,speed,stopdist,dt) return self:WalkToPos_Aux(x,y,speed,stopdist,dt) end
 
 function cMobBase:WalkToPos_Aux (x,y,speed,stopdist,dt,dirmod) 
 	local ax,ay = 0,0
@@ -269,10 +272,13 @@ function cMobBase:WalkToPos_Aux (x,y,speed,stopdist,dt,dirmod)
 	if ((dirmod < 0 and d < stopdist) or d > stopdist) then 
 		ax = dirmod * (x - self.x) * s / d
 		ay = dirmod * (y - self.y) * s / d
+		self.x = self.x + ax
+		self.y = self.y + ay
+		self.walking = (ax ~= 0) or (ay ~= 0)
+		return true
+	else
+		return false
 	end
-	self.x = self.x + ax
-	self.y = self.y + ay
-	self.walking = (ax ~= 0) or (ay ~= 0)
 end
 	
 function cMobBase:AddHitVel (dx,dy) 
@@ -376,12 +382,19 @@ function cMobEnemy:Step (dt)
 	if (self.dead) then return end
 	self.walking = false
 	if (gPlayer.dead) then return end
-	local bWalkToPlayer = true 
+	local bCanStillWalk = true 
 	
 	local other,d = GetNearestEnemyToPos(self.x,self.y,self)
-	if (d < ENEMY_SPREAD_DIST) then self:WalkAwayFromMob(other,SPEED_ENEMY,9999,dt) self.walking = true bWalkToPlayer = false end
+	if (d < ENEMY_SPREAD_DIST) then self:WalkAwayFromMob(other,SPEED_ENEMY,9999,dt) bCanStillWalk = false end
 	
-	if (bWalkToPlayer) then self:WalkToMob(gPlayer,SPEED_ENEMY,STOPDIST_ENEMY_TARGET,dt) self.walking = true end
+	if (bCanStillWalk) then
+		local dp = self:DistToMob(gPlayer)
+		if (dp < HUNTDIST_ENEMY_TARGET) then 
+			self:WalkToMob(gPlayer,SPEED_ENEMY,STOPDIST_ENEMY_TARGET,dt)
+		else
+			self:WalkToPos(self.start_x,self.start_y,SPEED_ENEMY,STOPDIST_ENEMY_TARGET,dt)
+		end
+	end
 	
 	if (self:DistToMob(gPlayer) < ENEMY_ATTACK_RANGE) then self:Attack(gPlayer) end
 end
