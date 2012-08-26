@@ -32,8 +32,12 @@ function cAreaOverworld:Draw (vw,vh)
 
 	-- background
 	local e = kTileSize
-	for ty = 0,vh/kTileSize do 
-	for tx = 0,vw/kTileSize do 
+	local txmin = floor((gCamX)/kTileSize)
+	local txmax = ceil((gCamX+vw)/kTileSize)
+	local tymin = floor((gCamY)/kTileSize)
+	local tymax = ceil((gCamY+vh)/kTileSize)
+	for tx = txmin,txmax do 
+	for ty = tymin,tymax do 
 		local tile = img_tile_sand
 		if (tx <  3) then tile = img_tile_water end
 		if (tx == 3) then tile = img_tile_sand_water end
