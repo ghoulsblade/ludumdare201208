@@ -38,7 +38,7 @@ OVERWORLD_TX_DJUNGLE = 2*15
 
 gMusic = true
 gSound = true
-VOLUME_MUSIC = 1
+VOLUME_MUSIC = 0.5
 VOLUME_SOUND = 1
 
 gCamX = 0
