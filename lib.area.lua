@@ -52,8 +52,8 @@ function cAreaOverworld:Draw (vw,vh)
 end
 
 function cAreaOverworld:Update (dt)
-	local vw = love.graphics.getWidth()
-	local vh = love.graphics.getHeight()
+	local vw = gScreenW
+	local vh = gScreenH
 	if (not gPlayer.dead) then CamSetTarget(gPlayer.x-vw/2,0) end
 	if (gPlayer.x < (OVERWORLD_TX_SAND-2)*kTileSize) then gPlayer:EnvDamage(1,1,0) end
 end
@@ -85,8 +85,8 @@ function cAreaDungeon:OnEnter ()
 end
 
 function cAreaDungeon:Update (dt)
-	local vw = love.graphics.getWidth()
-	local vh = love.graphics.getHeight()
+	local vw = gScreenW
+	local vh = gScreenH
 	CamSetTarget(gPlayer.x-vw/2,gPlayer.y-vh/2)
 end
 

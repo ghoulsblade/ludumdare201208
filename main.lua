@@ -21,7 +21,7 @@ PLAYER_ATTACK_INTERVAL = 0.2 -- seconds
 MOBILE_ATTACK_INTERVAL = 0.2 -- seconds
 MOBILE_ATTACK_ANIM_DUR = 0.1 -- seconds
 PLAYER_START_DEF = 5
-CAM_DAMP = 0.95 
+CAM_DAMP = 0.98
 
 OVERWORLD_TX_SAND = 1
 OVERWORLD_TX_GRASS = 1*15
@@ -91,6 +91,15 @@ function love.load()
 	img_tile_djungle	= myimg("data/tile-djungle.png"		)
 	
 	img_screen_title	= myimg("data/screen-title.jpg"		)
+	
+	UpdateScreenSize()
+	print("love.load screensize",gScreenW,gScreenH)
+end
+
+function UpdateScreenSize ()
+	if (gScreenW and gScreenW > 0) then return end -- only once
+	gScreenW = love.graphics.getWidth()
+	gScreenH = love.graphics.getHeight()
 end
 
 -- ***** ***** ***** ***** ***** key and mouse
@@ -120,6 +129,8 @@ end
 -- ***** ***** ***** ***** ***** love.update
 
 function love.update( dt )
+	UpdateScreenSize()
+	
 	if (dt > DT_MAX) then dt = DT_MAX end
 	local t = love.timer.getTime()
 	gSecondsSinceLastFrame = gCurTime and min(0.1,t-gCurTime) or 0
@@ -127,7 +138,6 @@ function love.update( dt )
 	if (gTitleScreen) then return end
 	
 	gCurArea:Update(dt)
-	CamStep()
 	
 	--[[
 	local ax,ay = 0,0
@@ -145,6 +155,7 @@ function love.update( dt )
 	for mob,_ in pairs(gCurArea.mobiles) do mob:Step(dt) end
 	gPlayer:Step(dt)
 	
+	CamStep()
 end
 
 -- ***** ***** ***** ***** ***** love.draw
@@ -153,8 +164,8 @@ function love.draw()
 	gCurTime = love.timer.getTime()
 	if (gTitleScreen) then love.graphics.draw(img_screen_title, 0,0) return end
 	
-	local vw = love.graphics.getWidth()
-	local vh = love.graphics.getHeight()
+	local vw = gScreenW
+	local vh = gScreenH
 	
 	gCurArea:Draw(vw,vh)
 	
