@@ -144,6 +144,9 @@ function love.load()
 	img_tile_grass		= myimg("data/tile-grass.png"		)
 	img_tile_djungle	= myimg("data/tile-djungle.png"		)
 	
+	img_cave_border_h	= myimg("data/cave-border-h.png"	)
+	img_cave_border_v	= myimg("data/cave-border-v.png"	)
+	
 	img_screen_title	= myimg("data/screen-title.jpg"		)
 	
 	if (gSound) then 
