@@ -16,6 +16,14 @@ function cAreaBase:Update (dt) end
 function cAreaBase:PositionIsValid	(x,y) return true end
 function cAreaBase:IsWalkable		(tx,ty) return true end
 
+function cAreaBase:GetImgDrawArea ()
+	local border = 128
+	local xmin = gCamX - border
+	local xmax = gCamX + border +gScreenW
+	local ymin = gCamY - border
+	local ymax = gCamY + border +gScreenH
+	return xmin,xmax,ymin,ymax
+end
 function cAreaBase:GetScreenArea ()
 	local txmin = floor((gCamX)/kTileSize)
 	local txmax = ceil( (gCamX+gScreenW)/kTileSize)
@@ -58,6 +66,8 @@ end
 function cAreaOverworld:Draw_Back ()
 	-- background
 	local e = kTileSize
+	local camx = floor(gCamX)
+	local camy = floor(gCamY)
 	local txmin,txmax,tymin,tymax = self:GetScreenArea()
 	for tx = txmin,txmax do 
 		local tile = img_tile_water
@@ -66,7 +76,7 @@ function cAreaOverworld:Draw_Back ()
 		if (tx  > OVERWORLD_TX_GRASS) then tile = img_tile_grass end
 		if (tx  > OVERWORLD_TX_DJUNGLE) then tile = img_tile_djungle end
 		for ty = tymin,tymax do 
-			love.graphics.draw(tile, e*tx-gCamX,e*ty-gCamY)
+			love.graphics.draw(tile, e*tx-camx,e*ty-camy)
 		end
 	end
 end
@@ -131,8 +141,8 @@ end
 function cAreaDungeon:Draw_Back ()
 	-- background
 	local e = kTileSize
-	local camx = gCamX
-	local camy = gCamY
+	local camx = floor(gCamX)
+	local camy = floor(gCamY)
 	local txmin,txmax,tymin,tymax = self:GetScreenArea()
 	for tx = txmin,txmax do 
 	for ty = tymin,tymax do 
@@ -140,17 +150,19 @@ function cAreaDungeon:Draw_Back ()
 		if (tile) then love.graphics.draw(tile, e*tx-camx,e*ty-camy) end
 	end
 	end
+	local xmin,xmax,ymin,ymax = self:GetImgDrawArea()
 	for k,v in ipairs(self.img_back) do 
 		local x,y,img = unpack(v)
 		love.graphics.draw(img,x-camx,y-camy)
+		if (x >= xmin and x <= xmax and y >= ymin and y <= ymax) then love.graphics.draw(img,x-camx,y-camy) end
 	end
 end
 
 function cAreaDungeon:Draw_Fore ()
 	-- foreground
 	local e = kTileSize
-	local camx = gCamX
-	local camy = gCamY
+	local camx = floor(gCamX)
+	local camy = floor(gCamY)
 	local txmin,txmax,tymin,tymax = self:GetScreenArea()
 	for tx = txmin,txmax do 
 	for ty = tymin,tymax do 
@@ -158,9 +170,10 @@ function cAreaDungeon:Draw_Fore ()
 		if (tile) then love.graphics.draw(tile, e*tx-camx,e*ty-camy) end
 	end
 	end
+	local xmin,xmax,ymin,ymax = self:GetImgDrawArea()
 	for k,v in ipairs(self.img_fore) do 
 		local x,y,img = unpack(v)
-		love.graphics.draw(img,x-camx,y-camy)
+		if (x >= xmin and x <= xmax and y >= ymin and y <= ymax) then love.graphics.draw(img,x-camx,y-camy) end
 	end
 end
 

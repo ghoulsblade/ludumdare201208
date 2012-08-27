@@ -30,7 +30,7 @@ DUNGEON_TUNNEL_MINW = 2
 DUNGEON_TUNNEL_MAXW = 2
 DUNGEON_ROOM_MINR = 2
 DUNGEON_ROOM_MAXR = 4
-DUNGEON_GRID_SIZE = 2+2*DUNGEON_ROOM_MAXR
+DUNGEON_GRID_SIZE = 3+2*DUNGEON_ROOM_MAXR
 DEBUG_CHEATS_ON = false
 DEBUG_CHEATS_ON = true
 
@@ -318,8 +318,10 @@ function love.draw()
 	
 	gCurArea:Draw_Back()
 	
-	for o,_ in pairs(gCurArea.items) do o:Draw(gCamX,gCamY) end
-	for o,_ in pairs(gCurArea.mobiles) do o:Draw(gCamX,gCamY) end
+	local camx = floor(gCamX)
+	local camy = floor(gCamY)
+	for o,_ in pairs(gCurArea.items) do o:Draw(camx,camy) end
+	for o,_ in pairs(gCurArea.mobiles) do o:Draw(camx,camy) end
 	gPlayer:Draw(gCamX,gCamY)
 	
 	gCurArea:Draw_Fore()
