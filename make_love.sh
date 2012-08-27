@@ -1,6 +1,6 @@
 #!/bin/bash
 
-FILENAMEBASE=GeneRogue-v1.0
+FILENAMEBASE=GeneRogue-v1.1
 
 FINDCMD="find . -false" # warning: quoted paths are escaped in a weird way by bash, breaking the find commandline
 FINDCMD="$FINDCMD -o -wholename ./.git -prune"
