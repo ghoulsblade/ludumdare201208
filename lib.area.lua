@@ -8,11 +8,21 @@ function cAreaBase:Init ()
 	self.items = {}
 end
 
+function cAreaBase:Draw_Back () end
+function cAreaBase:Draw_Fore () end
 function cAreaBase:DrawAfterEffect () end  -- img_dark
 function cAreaBase:OnEnter () end
 function cAreaBase:Update (dt) end
 function cAreaBase:PositionIsValid	(x,y) return true end
 function cAreaBase:IsWalkable		(tx,ty) return true end
+
+function cAreaBase:GetScreenArea ()
+	local txmin = floor((gCamX)/kTileSize)
+	local txmax = ceil( (gCamX+gScreenW)/kTileSize)
+	local tymin = floor((gCamY)/kTileSize)
+	local tymax = ceil( (gCamY+gScreenH)/kTileSize)
+	return txmin,txmax,tymin,tymax
+end
 
 function cAreaBase:GetNearestEnemyToPos (x,y,skip)
 	local found_dist
@@ -45,15 +55,10 @@ function cAreaOverworld:Init ()
 end
 
 
-function cAreaOverworld:Draw ()
-	local vw = gScreenW
-	local vh = gScreenH
+function cAreaOverworld:Draw_Back ()
 	-- background
 	local e = kTileSize
-	local txmin = floor((gCamX)/kTileSize)
-	local txmax = ceil( (gCamX+vw)/kTileSize)
-	local tymin = floor((gCamY)/kTileSize)
-	local tymax = ceil( (gCamY+vh)/kTileSize)
+	local txmin,txmax,tymin,tymax = self:GetScreenArea()
 	for tx = txmin,txmax do 
 		local tile = img_tile_water
 		if (tx == OVERWORLD_TX_SAND) then tile = img_tile_sand_water end
@@ -67,9 +72,7 @@ function cAreaOverworld:Draw ()
 end
 
 function cAreaOverworld:MoveCamToPlayer (bForceReset)
-	local vw = gScreenW
-	local vh = gScreenH
-	CamSetTarget(gPlayer.x-vw/2,0,bForceReset)
+	CamSetTarget(gPlayer.x-gScreenW/2,0,bForceReset)
 end
 
 function cAreaOverworld:Update (dt)
@@ -86,6 +89,17 @@ function cAreaDungeon:Init (entrance,level)
 	self.is_dungeon = true
 	self.entrance = entrance
 	self.level = level
+	
+	self.tile_floor		= img_tile_cave_floor
+	self.tile_wall		= img_tile_cave_wall
+	
+	self.txmin = 0
+	self.txmax = 0
+	self.tymin = 0
+	self.tymax = 0
+	self.tiles_back = {}
+	self.tiles_fore = {}
+	self.walkable = {}
 end
 
 
@@ -94,12 +108,7 @@ function cAreaDungeon:OnEnter ()
 	if (self.init_done) then return end
 	-- generate dungeon on first enter
 	self.init_done = true
-	
-	-- items
 	self.exit = cItemCaveExit:New(self,0,0)
-	
-	-- floor
-	self.floor = {}
 	self:GenerateDungeonRooms()
 end
 
@@ -108,24 +117,29 @@ function cAreaDungeon:Update (dt)
 end
 
 function cAreaDungeon:MoveCamToPlayer (bForceReset)
-	local vw = gScreenW
-	local vh = gScreenH
-	CamSetTarget(gPlayer.x-vw/2,gPlayer.y-vh/2,bForceReset)
+	CamSetTarget(gPlayer.x-gScreenW/2,gPlayer.y-gScreenH/2,bForceReset)
 end
 
-function cAreaDungeon:Draw ()
-	local vw = gScreenW
-	local vh = gScreenH
-	-- background
+
+function cAreaDungeon:Draw_Fore ()
+	-- foreground
 	local e = kTileSize
-	local txmin = floor((gCamX)/kTileSize)
-	local txmax = ceil( (gCamX+vw)/kTileSize)
-	local tymin = floor((gCamY)/kTileSize)
-	local tymax = ceil( (gCamY+vh)/kTileSize)
+	local txmin,txmax,tymin,tymax = self:GetScreenArea()
 	for tx = txmin,txmax do 
 	for ty = tymin,tymax do 
-		local tile = nil
-		if (self.floor[tx..","..ty]) then tile = img_tile_cave_floor end
+		local tile = self:GetTile_Fore(tx,ty)
+		if (tile) then love.graphics.draw(tile, e*tx-gCamX,e*ty-gCamY) end
+	end
+	end
+end
+
+function cAreaDungeon:Draw_Back ()
+	-- background
+	local e = kTileSize
+	local txmin,txmax,tymin,tymax = self:GetScreenArea()
+	for tx = txmin,txmax do 
+	for ty = tymin,tymax do 
+		local tile = self:GetTile_Back(tx,ty)
 		if (tile) then love.graphics.draw(tile, e*tx-gCamX,e*ty-gCamY) end
 	end
 	end
@@ -153,8 +167,27 @@ function cAreaDungeon:GenerateDungeonRooms()
 	
 	local num_rooms = 1+self.level
 	
+	-- make a bunch of rooms
 	for i=1,num_rooms-1 do self:AppendRandomRoom((random(10) == 1) and cItemGeneBlue) end
+	-- make final room with red gene
 	self:AppendRandomRoom(cItemGeneRed) -- at the end, or at least somewhere deeeep in ;)
+	
+	-- generate tiles
+	print("gen-tile-bounds",self.txmin,self.txmax,self.tymin,self.tymax)
+	for tx = self.txmin,self.txmax do
+	for ty = self.tymin,self.tymax do
+		if (self:IsWalkable(tx,ty)) then
+			if (not self:IsWalkable(tx,ty+1)) then
+				self:SetTile_Fore(tx,ty+1,img_tile_black)
+				self:SetTile_Fore(tx,ty+2,img_tile_black)
+			end
+			if (not self:IsWalkable(tx,ty-1)) then
+				self:SetTile_Back(tx,ty-1,self.tile_wall)
+				self:SetTile_Back(tx,ty-2,self.tile_wall)
+			end
+		end
+	end
+	end
 end
 
 function cAreaDungeon:AppendRandomRoom(itemclass)
@@ -188,8 +221,19 @@ function cAreaDungeon:AppendRandomRoom(itemclass)
 end
 
 function cAreaDungeon:PositionIsValid (x,y) return self:IsWalkable(floor(x/kTileSize),floor(y/kTileSize)) end
-function cAreaDungeon:IsWalkable (tx,ty) return self.floor[tx..","..ty] end
-function cAreaDungeon:SetFloor (tx,ty) self.floor[tx..","..ty] = true end
+function cAreaDungeon:IsWalkable (tx,ty) return self.walkable[tx..","..ty] end
+function cAreaDungeon:GetTile_Back (tx,ty) return self.tiles_back[tx..","..ty] end -- returns tile
+function cAreaDungeon:SetTile_Back (tx,ty,tile) self.tiles_back[tx..","..ty] = tile end
+function cAreaDungeon:GetTile_Fore (tx,ty) return self.tiles_fore[tx..","..ty] end -- returns tile
+function cAreaDungeon:SetTile_Fore (tx,ty,tile) self.tiles_fore[tx..","..ty] = tile end
+function cAreaDungeon:SetFloor (tx,ty) 
+	self.walkable[tx..","..ty] = true 
+	self:SetTile_Back(tx,ty,self.tile_floor)
+	self.txmin = min(self.txmin,tx)
+	self.txmax = max(self.txmax,tx)
+	self.tymin = min(self.tymin,ty)
+	self.tymax = max(self.tymax,ty)
+end
 
 -- returns tx,ty
 function cAreaDungeon:GetRandomWalkablePos (tx0,ty0,r) 

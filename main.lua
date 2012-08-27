@@ -30,8 +30,9 @@ DUNGEON_TUNNEL_MINW = 2
 DUNGEON_TUNNEL_MAXW = 2
 DUNGEON_ROOM_MINR = 2
 DUNGEON_ROOM_MAXR = 4
-DUNGEON_GRID_SIZE = 1+2*DUNGEON_ROOM_MAXR
+DUNGEON_GRID_SIZE = 2+2*DUNGEON_ROOM_MAXR
 DEBUG_CHEATS_ON = false
+DEBUG_CHEATS_ON = true
 
 VALUE_ICON_SWORD_1 = 1
 VALUE_ICON_SWORD_2 = 3*VALUE_ICON_SWORD_1
@@ -135,6 +136,7 @@ function love.load()
 	img_tile_cave_exit	= myimg("data/tile-cave-exit.png"	)
 	img_tile_cave_floor	= myimg("data/tile-cave-floor.png"	)
 	img_tile_cave_wall	= myimg("data/tile-cave-wall.png"	)
+	img_tile_black		= myimg("data/tile-black.png"		)
 	
 	img_tile_water		= myimg("data/tile-water.png"		)
 	img_tile_sand_water	= myimg("data/tile-sand-water.png"	)
@@ -311,11 +313,14 @@ function love.draw()
 	gCurTime = love.timer.getTime()
 	if (gTitleScreen) then love.graphics.draw(img_screen_title, 0,0) return end
 	
-	gCurArea:Draw()
+	gCurArea:Draw_Back()
 	
 	for o,_ in pairs(gCurArea.items) do o:Draw(gCamX,gCamY) end
 	for o,_ in pairs(gCurArea.mobiles) do o:Draw(gCamX,gCamY) end
 	gPlayer:Draw(gCamX,gCamY)
+	
+	gCurArea:Draw_Fore()
+	
 	gCurArea:DrawAfterEffect() -- img_dark
 	
 	
