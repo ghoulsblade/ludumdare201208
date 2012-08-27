@@ -8,9 +8,18 @@ function cAreaBase:Init ()
 	self.items = {}
 	self.deco = {}
 end
-function cAreaBase:AddDeco () end
-function cAreaBase:DrawDeco () 
 
+function cAreaBase:AddDeco (img,x,y) table.insert(self.deco,{x,y,img}) end
+
+function cAreaBase:DrawDeco () 
+	-- deco
+	local camx = floor(gCamX)
+	local camy = floor(gCamY)
+	local xmin,xmax,ymin,ymax = self:GetImgDrawArea()
+	for k,v in ipairs(self.deco) do 
+		local x,y,img = unpack(v)
+		if (x >= xmin and x <= xmax and y >= ymin and y <= ymax) then love.graphics.draw(img,x-camx,y-camy) end
+	end
 end
 
 
@@ -58,7 +67,7 @@ function cAreaOverworld:Init ()
 	cAreaBase.Init(self)
 	
 	-- generate a "few"
-	for tx=0,100 do
+	for tx=0,OVERWORLD_TX_END do
 		local i = tx
 		if (i >= 0) then
 			local level = floor(i/5)
@@ -66,6 +75,19 @@ function cAreaOverworld:Init ()
 			if (math.fmod(i,10) == 5) then cItemCave:New(self,tx,8,level) end
 			if (math.fmod(i,20) == 0) then cItemNest:New(self,tx,8) end
 		end
+	end
+	
+	-- deco
+	local e = kTileSize
+	for i=1,OVERWORLD_NUM_DECO do 
+		local x = randirange(0,e*OVERWORLD_TX_END + 25*e)
+		local y = randirange(0,gScreenH)
+		local img
+			if (x >= e*OVERWORLD_TX_DJUNGLE	) then	img = randarr(imgarr_deco_djungle) 
+		elseif (x >= e*OVERWORLD_TX_GRASS	) then	img = randarr(imgarr_deco_grass) 
+		else										img = randarr(imgarr_deco_sand) 
+		end
+		self:AddDeco(img,x,y)
 	end
 end
 
@@ -190,7 +212,6 @@ function cAreaDungeon:Draw_Back ()
 	local xmin,xmax,ymin,ymax = self:GetImgDrawArea()
 	for k,v in ipairs(self.img_back) do 
 		local x,y,img = unpack(v)
-		love.graphics.draw(img,x-camx,y-camy)
 		if (x >= xmin and x <= xmax and y >= ymin and y <= ymax) then love.graphics.draw(img,x-camx,y-camy) end
 	end
 end
@@ -260,6 +281,28 @@ function cAreaDungeon:GenerateDungeonRooms()
 		end
 	end
 	end
+	
+	-- generate deco 
+	
+	-- deco
+	local e = kTileSize
+	local numdeco_target = min(DUNGEON_NUM_DECO_MAX,num_rooms*DUNGEON_NUM_DECO_PER_ROOM)
+	local xmin,xmax = self.txmin*e,self.txmax*e
+	local ymin,ymax = self.tymin*e,self.tymax*e
+	
+	local numdeco_real = 0
+	for i=1,numdeco_target do 
+		for i=1,10 do -- 10 tries to find valid pos
+			local x = randirange(xmin,xmax)
+			local y = randirange(ymin,ymax)
+			if (self:PositionIsValid(x,y)) then 
+				self:AddDeco(randarr(imgarr_deco_cave),x,y)
+				numdeco_real = numdeco_real + 1
+				break
+			end
+		end
+	end
+	print("cave num_rooms=",num_rooms,"deco=",numdeco_real.."/"..numdeco_target)
 end
 
 function cAreaDungeon:AppendRandomRoom(itemclass)
