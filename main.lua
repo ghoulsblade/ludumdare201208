@@ -157,10 +157,10 @@ function love.load()
 	
 	if (gMusic) then
 		local musicpath = "data/backloop.ogg"
-		local music = love.audio.newSource(musicpath)
-		music:setLooping(true)
-		music:setVolume(VOLUME_MUSIC)
-		music:play()
+		gMusicSrc = love.audio.newSource(musicpath)
+		gMusicSrc:setLooping(true)
+		gMusicSrc:setVolume(VOLUME_MUSIC)
+		gMusicSrc:play()
 	end
 
 	
@@ -202,11 +202,27 @@ function love.keypressed( key, unicode )
     if (key == "escape") then os.exit(0) end
 	if (gTitleScreen) then return StartGame() end
     if (key == "f1") then print("player pos",floor(gPlayer.x/kTileSize),floor(gPlayer.y/kTileSize)) end
+    if (key == "m" and gMusicSrc) then 
+		gMusicSrc:setVolume(0)
+		gMusicSrc:stop()
+		gMusicSrc:rewind()
+		gMusicSrc:setLooping(false)
+	end
 	
 	
 	if (snds) then 
-		local snd = snds[tonumber(key) or 0]
-		if (snd) then snd:play() print("snd-test",snd.path) end
+		if (key == "1" or 
+			key == "2" or 
+			key == "3" or 
+			key == "4" or 
+			key == "5" or 
+			key == "6" or 
+			key == "7" or 
+			key == "8" or 
+			key == "9" ) then 
+			local snd = snds[tonumber(key) or 0]
+			if (snd) then snd:play() print("snd-test",snd.path) end
+		end
 	end
 end
 
