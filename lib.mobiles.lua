@@ -122,7 +122,7 @@ function cMobBase:EnvDamage (dmg,dx,dy)
 end
 
 function cMobBase:TakeDamage (dmg,attacker) 
-	self.def = self.def - dmg
+	if (not DEBUG_CHEATS_ON) then self.def = self.def - dmg end
 	if (self.def <= 0) then
 		self:Die(self)
 	else

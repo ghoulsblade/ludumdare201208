@@ -31,6 +31,7 @@ DUNGEON_TUNNEL_MAXW = 2
 DUNGEON_ROOM_MINR = 2
 DUNGEON_ROOM_MAXR = 4
 DUNGEON_GRID_SIZE = 1+2*DUNGEON_ROOM_MAXR
+DEBUG_CHEATS_ON = false
 
 OVERWORLD_TX_SAND = 1
 OVERWORLD_TX_GRASS = 1*15
@@ -52,6 +53,12 @@ gEgg_Blue 		= 0
 gEgg_Red  		= 0
 gEgg_TX			= 4
 gEgg_TY			= 6
+if (DEBUG_CHEATS_ON) then 
+	gEgg_Blue 		= 3
+	gEgg_Red  		= 5
+end
+
+gPause = false
 
 gKeyPressed = {}
 gTitleScreen = true
@@ -202,6 +209,7 @@ function love.keypressed( key, unicode )
     if (key == "escape") then os.exit(0) end
 	if (gTitleScreen) then return StartGame() end
     if (key == "f1") then print("player pos",floor(gPlayer.x/kTileSize),floor(gPlayer.y/kTileSize)) end
+    if (key == "p") then gPause = not gPause end
     if (key == "m" and gMusicSrc) then 
 		gMusicSrc:setVolume(0)
 		gMusicSrc:stop()
@@ -254,25 +262,27 @@ function love.update( dt )
 		PlayerRespawn()
 	end
 	
-	if (not gPlayer.dead) then 
-		--[[
-		local ax,ay = 0,0
-		if (gKeyPressed["a"] or gKeyPressed["left"]) then ax = -s end
-		if (gKeyPressed["d"] or gKeyPressed["right"]) then ax = s end
-		if (gKeyPressed["w"] or gKeyPressed["up"]) then ay = -s end
-		if (gKeyPressed["s"] or gKeyPressed["down"]) then ay = s end
-		]]--
+	if (not gPause) then 
+		if (not gPlayer.dead) then 
+			--[[
+			local ax,ay = 0,0
+			if (gKeyPressed["a"] or gKeyPressed["left"]) then ax = -s end
+			if (gKeyPressed["d"] or gKeyPressed["right"]) then ax = s end
+			if (gKeyPressed["w"] or gKeyPressed["up"]) then ay = -s end
+			if (gKeyPressed["s"] or gKeyPressed["down"]) then ay = s end
+			]]--
+		
+			local x, y = love.mouse.getPosition()
+			gPlayer:WalkToPos(x+gCamX,y+gCamY,SPEED_PLAYER,STOPDIST_PLAYER_MOUSE,dt)
+		
+			if (gKeyPressed[" "] or gMouseDownL) then gPlayer:AutoAttack() end
+		end
 	
-		local x, y = love.mouse.getPosition()
-		gPlayer:WalkToPos(x+gCamX,y+gCamY,SPEED_PLAYER,STOPDIST_PLAYER_MOUSE,dt)
-	
-		if (gKeyPressed[" "] or gMouseDownL) then gPlayer:AutoAttack() end
+		for o,_ in pairs(gCurArea.items) do o:Step(dt) end
+		for o,_ in pairs(gCurArea.mobiles) do o:Step(dt) end
+		gPlayer:Step(dt)
+		gCurArea:Update(dt)
 	end
-	
-	for o,_ in pairs(gCurArea.items) do o:Step(dt) end
-	for o,_ in pairs(gCurArea.mobiles) do o:Step(dt) end
-	gPlayer:Step(dt)
-	gCurArea:Update(dt)
 	
 	CamStep()
 end

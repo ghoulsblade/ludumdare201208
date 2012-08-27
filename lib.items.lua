@@ -56,12 +56,14 @@ function cItemGeneRed:Init  (...) cItemBase.Init(self,...) self.img = img_genes_
 function cItemGeneBlue:Init (...) cItemBase.Init(self,...) self.img = img_genes_blue self.hover_h = 4 self.shadow = true end
 
 function cItemGeneRed:OnTouch ()
+	if (DEBUG_CHEATS_ON) then return end
 	gCarried_Red = gCarried_Red + 1
 	self:Destroy()
 	snd_powerup:play()
 end
 
 function cItemGeneBlue:OnTouch ()
+	if (DEBUG_CHEATS_ON) then return end
 	gCarried_Blue = gCarried_Blue + 1
 	self:Destroy()
 	snd_powerup:play()
