@@ -51,11 +51,11 @@ function cAreaOverworld:Init ()
 	cAreaBase.Init(self)
 	
 	-- generate a "few"
-	for tx=1,100 do
-		local i = tx - 2
+	for tx=0,100 do
+		local i = tx
 		if (i >= 0) then
-			local level = 1+floor(i/5)
-			if (math.fmod(i,10) == 0) then cItemCave:New(self,tx,2,level) end
+			local level = floor(i/5)
+			if (math.fmod(i,10) == 0 and i > 0) then cItemCave:New(self,tx,2,level) end
 			if (math.fmod(i,10) == 5) then cItemCave:New(self,tx,8,level) end
 			if (math.fmod(i,20) == 0) then cItemNest:New(self,tx,8) end
 		end
