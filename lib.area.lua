@@ -113,7 +113,7 @@ function cAreaOverworld:Draw_Back ()
 	
 	-- rolling waves
 	local tx_water = OVERWORLD_TX_SAND
-	if (tx_water > txmin) then 
+	if (tx_water > txmin - 3) then 
 		local dur = 3
 		local ay = 5*math.sin((t or gCurTime)/dur*2*math.pi)
 		local dur = 4
