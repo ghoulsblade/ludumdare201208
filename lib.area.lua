@@ -71,12 +71,32 @@ function cAreaOverworld:Draw_Back ()
 	local txmin,txmax,tymin,tymax = self:GetScreenArea()
 	for tx = txmin,txmax do 
 		local tile = img_tile_water
-		if (tx == OVERWORLD_TX_SAND) then tile = img_tile_sand_water end
-		if (tx  > OVERWORLD_TX_SAND) then tile = img_tile_sand end
-		if (tx  > OVERWORLD_TX_GRASS) then tile = img_tile_grass end
-		if (tx  > OVERWORLD_TX_DJUNGLE) then tile = img_tile_djungle end
+		if (tx >= OVERWORLD_TX_SAND) then tile = img_tile_sand end
+		if (tx >= OVERWORLD_TX_GRASS) then tile = img_tile_grass end
+		if (tx >= OVERWORLD_TX_DJUNGLE) then tile = img_tile_djungle end
 		for ty = tymin,tymax do 
 			love.graphics.draw(tile, e*tx-camx,e*ty-camy)
+		end
+	end
+	
+	-- rolling waves
+	local tx_water = OVERWORLD_TX_SAND
+	if (tx_water > txmin) then 
+		local dur = 4
+		local t = gCurTime/dur - floor(gCurTime/dur)
+		local ax = t * kTileSize
+		for tx = txmin-1,tx_water do 
+			local tile = img_tile_water
+			if (tx == tx_water) then 
+				tile = img_tile_sand_water 
+				love.graphics.setColor(255,255,255,255-255*t)
+			end
+			for ty = tymin,tymax do 
+				love.graphics.draw(tile, e*tx-camx+ax,e*ty-camy)
+			end
+			if (tx == tx_water) then 
+				love.graphics.setColor(255,255,255,255)
+			end
 		end
 	end
 end
