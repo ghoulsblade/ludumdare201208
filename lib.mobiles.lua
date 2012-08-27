@@ -1,5 +1,4 @@
 
-
 -- ***** ***** ***** ***** ***** cMobBase
 cMobBase = CreateClass()
 
@@ -11,7 +10,7 @@ function cMobBase:Init (area,img,tx,ty,att,def)
 	self.area = area
 	if (area) then area.mobiles[self] = true end
 	
-	self.img = img
+	self.img = img or self.img_default or img_mob_def
 	self.att = att or 1
 	self.def = def or 1
 	self.x = x
@@ -151,50 +150,71 @@ function cMobBase:Draw (camx,camy)
 	if (self.dead) then return end
 	local ox,oy = -kTileSize/2, -kTileSize/2
 	local x,y = floor(self.x+ox-camx),floor(self.y+oy-camy)
-	love.graphics.draw(img_shadow,x,y)
+	love.graphics.draw(img_shadow,x,y - (self.shadow_off or 0))
 	local t = gCurTime + self.anim_random_addt -- seconds
 	local fdur = 0.1 -- frame duration, seconds
 	
-	if (self.walking) then 
-		if (self.left) then
-			love.graphics.draw(anim_frame(t,{img_part_legs_l_w1,img_part_legs_l_st,img_part_legs_l_w2,img_part_legs_l_st},fdur),x,y)
+	-- draw by type
+	if (self.simple) then 
+		-- simple enemy
+		if (self.flying) then
+			y = y + (self.hover_h or 4) * GetHoverDY(2)
+			local fdur = 0.5
+			self.anim_fly = self.anim_fly or {self.img_up,self.img_dn}
+			love.graphics.draw(anim_frame(t,self.anim_fly,fdur),x,y)
+		elseif (self.walking) then 
+			local fdur = 0.5
+			self.anim_walk = self.anim_walk or {self.img_st,self.img_w}
+			love.graphics.draw(anim_frame(t,self.anim_walk,fdur),x,y)
 		else
-			love.graphics.draw(anim_frame(t,{img_part_legs_r_w1,img_part_legs_r_st,img_part_legs_r_w2,img_part_legs_r_st},fdur),x,y)
+			love.graphics.draw(self.img_st,x,y)
 		end
-	else
-		if (self.left) then
-			love.graphics.draw(img_part_legs_l_st,x,y)
+	else 
+		-- humanoid
+			
+		if (self.walking) then 
+			if (self.left) then
+				self.anim_walk_l = self.anim_walk_l or {img_part_legs_l_w1,img_part_legs_l_st,img_part_legs_l_w2,img_part_legs_l_st}
+				love.graphics.draw(anim_frame(t,self.anim_walk_l,fdur),x,y)
+			else
+				self.anim_walk_r = self.anim_walk_r or {img_part_legs_r_w1,img_part_legs_r_st,img_part_legs_r_w2,img_part_legs_r_st}
+				love.graphics.draw(anim_frame(t,self.anim_walk_r,fdur),x,y)
+			end
 		else
-			love.graphics.draw(img_part_legs_r_st,x,y)
+			if (self.left) then
+				love.graphics.draw(img_part_legs_l_st,x,y)
+			else
+				love.graphics.draw(img_part_legs_r_st,x,y)
+			end
 		end
-	end
-	
-	local breathe_y1 = floor(y + 1.5 * GetHoverDY(self.breathe_dt,t))
-	local breathe_y  = floor(y + 3   * GetHoverDY(self.breathe_dt,t))
-	local sword_ox = -5*8
-	
-	love.graphics.draw(self.img,x,breathe_y1)
-	love.graphics.draw(self.img_face,x,breathe_y1)
-	
-	
-	if (self.left) then
-		love.graphics.draw(img_part_shield,x,breathe_y)
-	else
-		love.graphics.draw(img_part_shield_r,x,breathe_y)
-	end
-	
-	local sword_r_offx = 80
-	if (self.attack_anim_until > gCurTime) then 
+		
+		local breathe_y1 = floor(y + 1.5 * GetHoverDY(self.breathe_dt,t))
+		local breathe_y  = floor(y + 3   * GetHoverDY(self.breathe_dt,t))
+		local sword_ox = -5*8
+		
+		love.graphics.draw(self.img,x,breathe_y1)
+		love.graphics.draw(self.img_face,x,breathe_y1)
+		
+		
 		if (self.left) then
-			love.graphics.draw(img_part_sword2   ,x+sword_ox,breathe_y)
+			love.graphics.draw(img_part_shield,x,breathe_y)
 		else
-			love.graphics.draw(img_part_sword2_r ,x+sword_ox+sword_r_offx,breathe_y)
+			love.graphics.draw(img_part_shield_r,x,breathe_y)
 		end
-	else
-		if (self.left) then
-			love.graphics.draw(img_part_sword ,x+sword_ox,breathe_y)
+		
+		local sword_r_offx = 80
+		if (self.attack_anim_until > gCurTime) then 
+			if (self.left) then
+				love.graphics.draw(img_part_sword2   ,x+sword_ox,breathe_y)
+			else
+				love.graphics.draw(img_part_sword2_r ,x+sword_ox+sword_r_offx,breathe_y)
+			end
 		else
-			love.graphics.draw(img_part_sword_r,x+sword_ox+sword_r_offx,breathe_y)
+			if (self.left) then
+				love.graphics.draw(img_part_sword ,x+sword_ox,breathe_y)
+			else
+				love.graphics.draw(img_part_sword_r,x+sword_ox+sword_r_offx,breathe_y)
+			end
 		end
 	end
 	
@@ -287,4 +307,20 @@ function cMobPlayer:AutoAttack () -- swing wildly and always, even if not in ran
 end
 
 function cMobPlayer:NotifyDeath (attacker) gRepawnTime = gCurTime + PLAYER_RESPAWN_DELAY  end
+
+-- ***** ***** ***** ***** ***** enemies
+
+cMobHumanoidRed		= CreateClass(cMobEnemy)
+cMobHumanoidBlue	= CreateClass(cMobEnemy)
+
+cMobSimpleEnemy	= CreateClass(cMobEnemy)
+cMobSimpleEnemy.simple = true
+
+
+cMobCrab		= CreateClass(cMobSimpleEnemy)
+cMobCrabBlack	= CreateClass(cMobSimpleEnemy)
+cMobBat			= CreateClass(cMobSimpleEnemy)
+cMobBatHell		= CreateClass(cMobSimpleEnemy)
+cMobSpider		= CreateClass(cMobSimpleEnemy)
+cMobSpiderBlack	= CreateClass(cMobSimpleEnemy)
 

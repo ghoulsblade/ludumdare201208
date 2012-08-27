@@ -66,7 +66,12 @@ cAreaOverworld = CreateClass(cAreaBase)
 function cAreaOverworld:Init ()
 	cAreaBase.Init(self)
 	
+	--~ cMobCrab:New(	self,img_mob_def,	3,1, 1,1)
+	--~ cMobBat:New(	self,img_mob_def,	4,1, 1,1)
+	--~ cMobSpider:New(	self,img_mob_def,	5,1, 1,1)
+	
 	-- generate a "few"
+	local maxlevel = 0
 	for tx=0,OVERWORLD_TX_END do
 		local i = tx
 		if (i >= 0) then
@@ -74,8 +79,10 @@ function cAreaOverworld:Init ()
 			if (math.fmod(i,10) == 0 and i > 0) then cItemCave:New(self,tx,2,level) end
 			if (math.fmod(i,10) == 5) then cItemCave:New(self,tx,8,level) end
 			if (math.fmod(i,20) == 0) then cItemNest:New(self,tx,8) end
+			maxlevel = level
 		end
 	end
+	print("maxlevel",maxlevel)
 	
 	-- deco
 	local e = kTileSize
@@ -413,16 +420,20 @@ function cAreaDungeon:MakeRoom (tx0,ty0,r, mobs_red,mobs_blue,itemclass)
 	end
 	end
 	
+	local eclass_red,eclass_blue = GetRandomEnemyClassForLevel(self.level) 
+	eclass_red  = eclass_red  or cMobHumanoidRed
+	eclass_blue = eclass_blue or cMobHumanoidBlue
+	
 	--~ print("make room of level",level)
 	local level = self.level
 	-- mobs and items
 	for i=1,mobs_red or 0 do
 		local tx,ty = self:GetRandomWalkablePos(tx0,ty0,r)
-		if (tx) then cMobEnemy:New(self,img_mob_att, tx,ty, 2*ceil(level/2),1*level) end
+		if (tx) then eclass_red:New(self,nil, tx,ty, 2*ceil(level/2),1*level) end
 	end
 	for i=1,mobs_blue or 0 do
 		local tx,ty = self:GetRandomWalkablePos(tx0,ty0,r)
-		if (tx) then cMobEnemy:New(self,img_mob_def, tx,ty, 1*ceil(level/2),2*level) end
+		if (tx) then eclass_blue:New(self,nil, tx,ty, 1*ceil(level/2),2*level) end
 	end
 	if (itemclass) then 
 		local tx,ty = self:GetRandomWalkablePos(tx0,ty0,r)

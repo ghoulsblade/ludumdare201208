@@ -109,6 +109,8 @@ function love.load()
 	img_mob_att			= myimg("data/mob-att.png"			)
 	img_mob_def			= myimg("data/mob-def.png"			)
 	img_mob_player		= myimg("data/mob-player.png"		)
+	cMobHumanoidRed.img_default = img_mob_att
+	cMobHumanoidBlue.img_default = img_mob_def
 	
 	img_part_face_grr	= myimg("data/part-face-grr.png"	)
 	img_part_face_oh	= myimg("data/part-face-oh.png"		)
@@ -155,24 +157,56 @@ function love.load()
 	
 	img_screen_title	= myimg("data/screen-title.jpg"		)
 	
-	img_enemy_spider_w			= myimg("data/enemy/enemy-spider-w.png")
-	img_enemy_spider_st			= myimg("data/enemy/enemy-spider-st.png")
-	img_enemy_spider_att		= myimg("data/enemy/enemy-spider-att.png")
-	img_enemy_spider_black_w	= myimg("data/enemy/enemy-spider-black-w.png")
-	img_enemy_spider_black_st	= myimg("data/enemy/enemy-spider-black-st.png")
-	img_enemy_spider_black_att	= myimg("data/enemy/enemy-spider-black-att.png")
+	local e = 16
+	cMobSpider.img_w		= myimg("data/enemy/enemy-spider-w.png")
+	cMobSpider.img_st		= myimg("data/enemy/enemy-spider-st.png")
+	cMobSpider.img_att		= myimg("data/enemy/enemy-spider-att.png")
+	cMobSpiderBlack.img_w	= myimg("data/enemy/enemy-spider-black-w.png")
+	cMobSpiderBlack.img_st	= myimg("data/enemy/enemy-spider-black-st.png")
+	cMobSpiderBlack.img_att	= myimg("data/enemy/enemy-spider-black-att.png")
 	
-	img_enemy_bat_hell_up		= myimg("data/enemy/enemy-bat-hell-up.png")
-	img_enemy_bat_hell_dn		= myimg("data/enemy/enemy-bat-hell-dn.png")
-	img_enemy_bat_up			= myimg("data/enemy/enemy-bat-up.png")
-	img_enemy_bat_dn			= myimg("data/enemy/enemy-bat-dn.png")
+	cMobSpider.shadow_off = e
+	cMobSpiderBlack.shadow_off = e
 	
-	img_enemy_crab_w			= myimg("data/enemy/enemy-crab-w.png")
-	img_enemy_crab_st			= myimg("data/enemy/enemy-crab-st.png")
-	img_enemy_crab_att			= myimg("data/enemy/enemy-crab-att.png")
-	img_enemy_crab_black_w		= myimg("data/enemy/enemy-crab-black-w.png")
-	img_enemy_crab_black_st		= myimg("data/enemy/enemy-crab-black-st.png")
-	img_enemy_crab_black_att	= myimg("data/enemy/enemy-crab-black-att.png")
+	cMobBatHell.flying		= true
+	cMobBatHell.img_up		= myimg("data/enemy/enemy-bat-hell-up.png")
+	cMobBatHell.img_dn		= myimg("data/enemy/enemy-bat-hell-dn.png")
+	
+	cMobBat.flying			= true
+	cMobBat.img_up			= myimg("data/enemy/enemy-bat-up.png")
+	cMobBat.img_dn			= myimg("data/enemy/enemy-bat-dn.png")
+	
+	cMobCrab.img_w			= myimg("data/enemy/enemy-crab-w.png")
+	cMobCrab.img_st			= myimg("data/enemy/enemy-crab-st.png")
+	cMobCrab.img_att		= myimg("data/enemy/enemy-crab-att.png")
+	cMobCrabBlack.img_w		= myimg("data/enemy/enemy-crab-black-w.png")
+	cMobCrabBlack.img_st	= myimg("data/enemy/enemy-crab-black-st.png")
+	cMobCrabBlack.img_att	= myimg("data/enemy/enemy-crab-black-att.png")
+	
+
+	cMobCrab.shadow_off = e
+	cMobCrabBlack.shadow_off = e
+	
+	function GetRandomEnemyClassForLevel (level) 
+		local arr = {}
+		-- maxlevel 2012-08-28 = 20
+		if (level >=  1 and level <=  4) then table.insert(arr,{cMobCrab,cMobCrabBlack}) end
+		if (level >=  2 and level <= 99) then table.insert(arr,{cMobBatHell,cMobBat}) end
+		if (level >=  5 and level <= 99) then table.insert(arr,{cMobSpiderBlack,cMobSpider}) end
+		if (level >= 15 and level <= 99) then table.insert(arr,{cMobHumanoidRed,cMobHumanoidBlue}) end
+		return unpack(randarr(arr))
+	end
+	
+	-- test 
+	--~ function ClassName (c) for k,v in pairs(_G or {}) do if (v == c) then return k end end end
+	--~ for level = 1,20 do
+	--~ for i = 1,10 do 
+		--~ local a,b = GetRandomEnemyClassForLevel(level)	
+		--~ print("level",level,ClassName(a),ClassName(b)) 
+	--~ end
+	--~ print("---")
+	--~ end
+		
 	
 	imgarr_deco_cave = {
 		myimg("data/deco/deco_cave1.png"),
