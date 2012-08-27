@@ -6,7 +6,14 @@ cAreaBase = CreateClass()
 function cAreaBase:Init ()
 	self.mobiles = {}
 	self.items = {}
+	self.deco = {}
 end
+function cAreaBase:AddDeco () end
+function cAreaBase:DrawDeco () 
+
+end
+
+
 
 function cAreaBase:Draw_Back () end
 function cAreaBase:Draw_Fore () end
@@ -78,6 +85,9 @@ function cAreaOverworld:Draw_Back ()
 			love.graphics.draw(tile, e*tx-camx,e*ty-camy)
 		end
 	end
+	
+	-- deco
+	self:DrawDeco()
 	
 	-- rolling waves
 	local tx_water = OVERWORLD_TX_SAND
@@ -172,6 +182,11 @@ function cAreaDungeon:Draw_Back ()
 		if (tile) then love.graphics.draw(tile, e*tx-camx,e*ty-camy) end
 	end
 	end
+	
+	-- deco
+	self:DrawDeco()
+	
+	-- borders
 	local xmin,xmax,ymin,ymax = self:GetImgDrawArea()
 	for k,v in ipairs(self.img_back) do 
 		local x,y,img = unpack(v)
