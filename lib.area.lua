@@ -276,7 +276,7 @@ function cAreaDungeon:GenerateDungeonRooms()
 	local num_rooms = 1+self.level
 	
 	-- make a bunch of rooms
-	for i=1,num_rooms-1 do self:AppendRandomRoom((random(10) == 1) and cItemGeneBlue) end
+	for i=1,num_rooms-1 do self:AppendRandomRoom((random(5) == 1) and cItemGeneBlue) end
 	-- make final room with red gene
 	self:AppendRandomRoom(cItemGeneRed) -- at the end, or at least somewhere deeeep in ;)
 	

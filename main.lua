@@ -155,6 +155,25 @@ function love.load()
 	
 	img_screen_title	= myimg("data/screen-title.jpg"		)
 	
+	img_enemy_spider_w			= myimg("data/enemy/enemy-spider-w.png")
+	img_enemy_spider_st			= myimg("data/enemy/enemy-spider-st.png")
+	img_enemy_spider_att		= myimg("data/enemy/enemy-spider-att.png")
+	img_enemy_spider_black_w	= myimg("data/enemy/enemy-spider-black-w.png")
+	img_enemy_spider_black_st	= myimg("data/enemy/enemy-spider-black-st.png")
+	img_enemy_spider_black_att	= myimg("data/enemy/enemy-spider-black-att.png")
+	
+	img_enemy_bat_hell_up		= myimg("data/enemy/enemy-bat-hell-up.png")
+	img_enemy_bat_hell_dn		= myimg("data/enemy/enemy-bat-hell-dn.png")
+	img_enemy_bat_up			= myimg("data/enemy/enemy-bat-up.png")
+	img_enemy_bat_dn			= myimg("data/enemy/enemy-bat-dn.png")
+	
+	img_enemy_crab_w			= myimg("data/enemy/enemy-crab-w.png")
+	img_enemy_crab_st			= myimg("data/enemy/enemy-crab-st.png")
+	img_enemy_crab_att			= myimg("data/enemy/enemy-crab-att.png")
+	img_enemy_crab_black_w		= myimg("data/enemy/enemy-crab-black-w.png")
+	img_enemy_crab_black_st		= myimg("data/enemy/enemy-crab-black-st.png")
+	img_enemy_crab_black_att	= myimg("data/enemy/enemy-crab-black-att.png")
+	
 	imgarr_deco_cave = {
 		myimg("data/deco/deco_cave1.png"),
 		myimg("data/deco/deco_cave2.png"),
