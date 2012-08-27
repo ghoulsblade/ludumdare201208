@@ -192,7 +192,19 @@ function cAreaDungeon:MoveCamToPlayer (bForceReset)
 	CamSetTarget(gPlayer.x-gScreenW/2,gPlayer.y-gScreenH/2,bForceReset)
 end
 
+function cAreaDungeon:ResetThemeColor ()
+	love.graphics.setColor(255,255,255,255)
+end
+function cAreaDungeon:SetThemeColor ()
+	if (self.theme_col) then 
+		local r,g,b = unpack(self.theme_col)
+		love.graphics.setColor(r,g,b,255)
+	end
+end
+
 function cAreaDungeon:Draw_Back ()
+	self:SetThemeColor()
+	
 	-- background
 	local e = kTileSize
 	local camx = floor(gCamX)
@@ -214,9 +226,13 @@ function cAreaDungeon:Draw_Back ()
 		local x,y,img = unpack(v)
 		if (x >= xmin and x <= xmax and y >= ymin and y <= ymax) then love.graphics.draw(img,x-camx,y-camy) end
 	end
+	
+	self:ResetThemeColor()
 end
 
 function cAreaDungeon:Draw_Fore ()
+	self:SetThemeColor()
+	
 	-- foreground
 	local e = kTileSize
 	local camx = floor(gCamX)
@@ -233,6 +249,8 @@ function cAreaDungeon:Draw_Fore ()
 		local x,y,img = unpack(v)
 		if (x >= xmin and x <= xmax and y >= ymin and y <= ymax) then love.graphics.draw(img,x-camx,y-camy) end
 	end
+	
+	self:ResetThemeColor()
 end
 
 function cAreaDungeon:DrawAfterEffect () 

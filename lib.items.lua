@@ -54,6 +54,11 @@ function cItemCave:Init (area,tx,ty,level)
 	self.dungeon = cAreaDungeon:New(self,level)
 	self.ox = -kTileSize
 	self.oy = -kTileSize
+	self.dungeon.theme_col = {0xff,0xff,0xff}
+		if (tx >= OVERWORLD_TX_DJUNGLE) then	self.dungeon.theme_col = {0x5c,0xb2,0x36}
+	elseif (tx >= OVERWORLD_TX_GRASS) then		self.dungeon.theme_col = {0xbf,0x83,0x19}
+	elseif (tx >= OVERWORLD_TX_SAND) then		self.dungeon.theme_col = {0xed,0xe0,0xa4}
+	end
 end
 function cItemCaveExit:Init (...) 
 	cItemBase.Init(self,...) 
