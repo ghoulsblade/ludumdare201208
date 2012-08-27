@@ -54,7 +54,12 @@ function cItemCave:Init (area,tx,ty,level)
 	self.ox = -kTileSize
 	self.oy = -kTileSize
 end
-function cItemCaveExit:Init (...) cItemBase.Init(self,...) self.img = img_tile_cave_exit end
+function cItemCaveExit:Init (...) 
+	cItemBase.Init(self,...) 
+	self.img = img_tile_cave_exit 
+	self.ox = -kTileSize
+	self.oy = -kTileSize
+end
 function cItemGeneRed:Init  (...) cItemBase.Init(self,...) self.img = img_genes_red self.hover_h = 4 self.shadow = true end
 function cItemGeneBlue:Init (...) cItemBase.Init(self,...) self.img = img_genes_blue self.hover_h = 4 self.shadow = true end
 
