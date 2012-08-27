@@ -156,29 +156,29 @@ function love.load()
 	img_screen_title	= myimg("data/screen-title.jpg"		)
 	
 	imgarr_deco_cave = {
-		myimg("data/deco_cave1.png"),
-		myimg("data/deco_cave2.png"),
-		myimg("data/deco_cave3.png"),
-		myimg("data/deco_cave4.png"),
-		myimg("data/deco_cave5.png"),
-		myimg("data/deco_cave6.png"),
-		myimg("data/deco_cave7.png"),
-		myimg("data/deco_cave8.png"),
+		myimg("data/deco/deco_cave1.png"),
+		myimg("data/deco/deco_cave2.png"),
+		myimg("data/deco/deco_cave3.png"),
+		myimg("data/deco/deco_cave4.png"),
+		myimg("data/deco/deco_cave5.png"),
+		myimg("data/deco/deco_cave6.png"),
+		myimg("data/deco/deco_cave7.png"),
+		myimg("data/deco/deco_cave8.png"),
 	}
 	imgarr_deco_djungle = {
-		myimg("data/deco_djungle1.png"),
-		myimg("data/deco_djungle2.png"),
-		myimg("data/deco_djungle3.png"),
+		myimg("data/deco/deco_djungle1.png"),
+		myimg("data/deco/deco_djungle2.png"),
+		myimg("data/deco/deco_djungle3.png"),
 	}
 	imgarr_deco_grass = {
-		myimg("data/deco_grass1.png"),
-		myimg("data/deco_grass2.png"),
-		myimg("data/deco_grass3.png"),
-		myimg("data/deco_grass4.png"),
+		myimg("data/deco/deco_grass1.png"),
+		myimg("data/deco/deco_grass2.png"),
+		myimg("data/deco/deco_grass3.png"),
+		myimg("data/deco/deco_grass4.png"),
 	}
 	imgarr_deco_sand = {
-		myimg("data/deco_sand1.png"),
-		myimg("data/deco_sand2.png"),
+		myimg("data/deco/deco_sand1.png"),
+		myimg("data/deco/deco_sand2.png"),
 	}
 	
 	
