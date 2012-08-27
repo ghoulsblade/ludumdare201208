@@ -33,6 +33,16 @@ DUNGEON_ROOM_MAXR = 4
 DUNGEON_GRID_SIZE = 1+2*DUNGEON_ROOM_MAXR
 DEBUG_CHEATS_ON = false
 
+VALUE_ICON_SWORD_1 = 1
+VALUE_ICON_SWORD_2 = 3*VALUE_ICON_SWORD_1
+VALUE_ICON_SWORD_3 = 3*VALUE_ICON_SWORD_2
+VALUE_ICON_SWORD_4 = 3*VALUE_ICON_SWORD_3
+VALUE_ICON_SHIELD_h = 1
+VALUE_ICON_SHIELD_1 = 2
+VALUE_ICON_SHIELD_2 = 3*VALUE_ICON_SHIELD_1
+VALUE_ICON_SHIELD_3 = 3*VALUE_ICON_SHIELD_2
+VALUE_ICON_SHIELD_4 = 3*VALUE_ICON_SHIELD_3
+
 OVERWORLD_TX_SAND = 1
 OVERWORLD_TX_GRASS = 1*15
 OVERWORLD_TX_DJUNGLE = 2*15
@@ -111,7 +121,13 @@ function love.load()
 	
 	img_icon_shield_half= myimg("data/icon-shield-half.png"	)
 	img_icon_shield		= myimg("data/icon-shield.png"		)
+	img_icon_shield2	= myimg("data/icon-shield2.png"		)
+	img_icon_shield3	= myimg("data/icon-shield3.png"		)
+	img_icon_shield4	= myimg("data/icon-shield4.png"		)
 	img_icon_sword		= myimg("data/icon-sword.png"		)
+	img_icon_sword2		= myimg("data/icon-sword2.png"		)
+	img_icon_sword3		= myimg("data/icon-sword3.png"		)
+	img_icon_sword4		= myimg("data/icon-sword4.png"		)
 
 	img_shadow			= myimg("data/shadow.png"			)
 	
@@ -217,6 +233,8 @@ function love.keypressed( key, unicode )
 		gMusicSrc:setLooping(false)
 	end
 	
+	--~ if (key == "u") then gPlayer.att = gPlayer.att + 1 end
+	--~ if (key == "i") then gPlayer.def = gPlayer.def + 1 end
 	
 	if (snds) then 
 		if (key == "1" or 

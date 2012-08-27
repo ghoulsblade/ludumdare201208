@@ -200,16 +200,49 @@ function cMobBase:Draw (camx,camy)
 	
 	-- healtbar
 	local ix,iy = x,y-kIconSize
-	for i=1,self.att do 
-		love.graphics.draw(img_icon_sword,ix,iy)
+	local att = self.att
+	local def = self.def
+	
+	while att > 0 do 
+		if (att >= VALUE_ICON_SWORD_4) then 
+			love.graphics.draw(img_icon_sword4,ix,iy)
+			att = att - VALUE_ICON_SWORD_4
+		elseif (att >= VALUE_ICON_SWORD_3) then 
+			love.graphics.draw(img_icon_sword3,ix,iy)
+			att = att - VALUE_ICON_SWORD_3
+		elseif (att >= VALUE_ICON_SWORD_2) then 
+			love.graphics.draw(img_icon_sword2,ix,iy)
+			att = att - VALUE_ICON_SWORD_2
+		else
+			love.graphics.draw(img_icon_sword,ix,iy)
+			att = att - VALUE_ICON_SWORD_1
+		end
 		ix = ix + kIconSize/2
 	end
-	for i=1,self.def do
-		if (math.fmod(i-1,2) == 0) then
-			love.graphics.draw((self.def > i) and img_icon_shield or img_icon_shield_half,ix,iy)
+	while def > 0 do 
+		if (def >= VALUE_ICON_SHIELD_4) then 
+			love.graphics.draw(img_icon_shield4,ix,iy)
+			def = def - VALUE_ICON_SHIELD_4
 			ix = ix + kIconSize
+		elseif (def >= VALUE_ICON_SHIELD_3) then 
+			love.graphics.draw(img_icon_shield3,ix,iy)
+			def = def - VALUE_ICON_SHIELD_3
+			ix = ix + kIconSize
+		elseif (def >= VALUE_ICON_SHIELD_2) then 
+			love.graphics.draw(img_icon_shield2,ix,iy)
+			def = def - VALUE_ICON_SHIELD_2
+			ix = ix + kIconSize
+		elseif (def >= VALUE_ICON_SHIELD_1) then 
+			love.graphics.draw(img_icon_shield,ix,iy)
+			def = def - VALUE_ICON_SHIELD_1
+			ix = ix + kIconSize
+		else
+			love.graphics.draw(img_icon_shield_half,ix,iy)
+			def = def - VALUE_ICON_SHIELD_h
+			ix = ix + kIconSize/2
 		end
-	end	
+	end
+	
 end
 
 -- ***** ***** ***** ***** ***** cMobEnemy
