@@ -69,6 +69,7 @@ function cAreaOverworld:Init ()
 	--~ cMobCrab:New(	self,img_mob_def,	3,1, 1,1)
 	--~ cMobBat:New(	self,img_mob_def,	4,1, 1,1)
 	--~ cMobSpider:New(	self,img_mob_def,	5,1, 1,1)
+	SpawnOverworldMobs(self)
 	
 	-- generate a "few"
 	local maxlevel = 0
@@ -429,11 +430,11 @@ function cAreaDungeon:MakeRoom (tx0,ty0,r, mobs_red,mobs_blue,itemclass)
 	-- mobs and items
 	for i=1,mobs_red or 0 do
 		local tx,ty = self:GetRandomWalkablePos(tx0,ty0,r)
-		if (tx) then eclass_red:New(self,nil, tx,ty, 2*ceil(level/2),1*level) end
+		if (tx) then eclass_red:New(self,nil, tx,ty, GetLevelAttDef_Red(level)) end
 	end
 	for i=1,mobs_blue or 0 do
 		local tx,ty = self:GetRandomWalkablePos(tx0,ty0,r)
-		if (tx) then eclass_blue:New(self,nil, tx,ty, 1*ceil(level/2),2*level) end
+		if (tx) then eclass_blue:New(self,nil, tx,ty, GetLevelAttDef_Blue(level)) end
 	end
 	if (itemclass) then 
 		local tx,ty = self:GetRandomWalkablePos(tx0,ty0,r)

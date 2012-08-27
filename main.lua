@@ -187,13 +187,37 @@ function love.load()
 	cMobCrab.shadow_off = e
 	cMobCrabBlack.shadow_off = e
 	
+	gRoomCrew = {
+		{min_level=  1 , max_level =  4 , crew = {cMobCrab,cMobCrabBlack}},
+		{min_level=  3 , max_level = 99 , crew = {cMobBatHell,cMobBat}},
+		{min_level=  6 , max_level = 99 , crew = {cMobSpiderBlack,cMobSpider}},
+		{min_level= 15 , max_level = 99 , crew = {cMobHumanoidRed,cMobHumanoidBlue}},
+	}
+	
+	function GetLevelAttDef_Red  (level) return 2*ceil(level/2),1*level end
+	function GetLevelAttDef_Blue (level) return 1*ceil(level/2),2*level end
+	function SpawnOverworldMobs (area)
+		for k,o in ipairs(gRoomCrew) do 
+			local level =  o.min_level
+			local tx = level * 5 + 1
+			local eclass_red,eclass_blue = unpack(o.crew)
+			local num = 2
+			if (level > 5) then num = 3 end
+			if (level > 10) then num = 4 end
+			if (level > 15) then num = 5 end
+			for i=1,num do 
+				eclass_red:New( area,nil, tx+randirange(0,5),randirange(0,gScreenH / kTileSize - 1), GetLevelAttDef_Red(level))
+				eclass_blue:New(area,nil, tx+randirange(0,5),randirange(0,gScreenH / kTileSize - 1), GetLevelAttDef_Blue(level))
+			end
+		end
+	end
+	
 	function GetRandomEnemyClassForLevel (level) 
 		local arr = {}
 		-- maxlevel 2012-08-28 = 20
-		if (level >=  1 and level <=  4) then table.insert(arr,{cMobCrab,cMobCrabBlack}) end
-		if (level >=  2 and level <= 99) then table.insert(arr,{cMobBatHell,cMobBat}) end
-		if (level >=  5 and level <= 99) then table.insert(arr,{cMobSpiderBlack,cMobSpider}) end
-		if (level >= 15 and level <= 99) then table.insert(arr,{cMobHumanoidRed,cMobHumanoidBlue}) end
+		for k,o in ipairs(gRoomCrew) do 
+			if (level >= o.min_level and level <= o.max_level) then table.insert(arr,o.crew) end
+		end
 		return unpack(randarr(arr))
 	end
 	
