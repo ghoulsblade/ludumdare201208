@@ -50,6 +50,7 @@ function cItemNest:Init (...) cItemBase.Init(self,...) self.img = img_tile_nest 
 function cItemCave:Init (area,tx,ty,level)
 	cItemBase.Init(self,area,tx,ty)
 	self.img = img_tile_cave
+	if (tx < OVERWORLD_TX_GRASS) then self.img = img_tile_cave_sand end
 	self.dungeon = cAreaDungeon:New(self,level)
 	self.ox = -kTileSize
 	self.oy = -kTileSize

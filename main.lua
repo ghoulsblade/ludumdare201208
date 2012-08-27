@@ -44,9 +44,9 @@ VALUE_ICON_SHIELD_2 = 3*VALUE_ICON_SHIELD_1
 VALUE_ICON_SHIELD_3 = 3*VALUE_ICON_SHIELD_2
 VALUE_ICON_SHIELD_4 = 3*VALUE_ICON_SHIELD_3
 
-OVERWORLD_TX_SAND = -2
-OVERWORLD_TX_GRASS = 1*25
-OVERWORLD_TX_DJUNGLE = 2*25
+OVERWORLD_TX_SAND		= -2
+OVERWORLD_TX_GRASS		= 1*25 + 2
+OVERWORLD_TX_DJUNGLE	= 2*25 + 2
 
 gMusic = true
 gSound = true
@@ -133,6 +133,7 @@ function love.load()
 	img_shadow			= myimg("data/shadow.png"			)
 	
 	img_tile_cave		= myimg("data/tile-cave.png"		)
+	img_tile_cave_sand	= myimg("data/tile-cave-sand.png"		)
 	img_tile_cave_exit	= myimg("data/tile-cave-exit.png"	)
 	img_tile_cave_floor	= myimg("data/tile-cave-floor.png"	)
 	img_tile_cave_wall	= myimg("data/tile-cave-wall.png"	)
@@ -238,8 +239,10 @@ function love.keypressed( key, unicode )
 		gMusicSrc:setLooping(false)
 	end
 	
-	--~ if (key == "u") then gPlayer.att = gPlayer.att + 1 end
-	--~ if (key == "i") then gPlayer.def = gPlayer.def + 1 end
+	if (DEBUG_CHEATS_ON) then 
+		if (key == "u") then gPlayer.att = gPlayer.att + 1 end
+		if (key == "i") then gPlayer.def = gPlayer.def + 1 end
+	end
 	
 	if (snds) then 
 		if (key == "1" or 

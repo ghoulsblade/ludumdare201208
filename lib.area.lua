@@ -82,6 +82,8 @@ function cAreaOverworld:Draw_Back ()
 	-- rolling waves
 	local tx_water = OVERWORLD_TX_SAND
 	if (tx_water > txmin) then 
+		local dur = 3
+		local ay = 5*math.sin((t or gCurTime)/dur*2*math.pi)
 		local dur = 4
 		local t = gCurTime/dur - floor(gCurTime/dur)
 		local ax = t * kTileSize
@@ -91,8 +93,8 @@ function cAreaOverworld:Draw_Back ()
 				tile = img_tile_sand_water 
 				love.graphics.setColor(255,255,255,255-255*t)
 			end
-			for ty = tymin,tymax do 
-				love.graphics.draw(tile, e*tx-camx+ax,e*ty-camy)
+			for ty = tymin-1,tymax+1 do 
+				love.graphics.draw(tile, e*tx-camx+ax,e*ty-camy+ay)
 			end
 			if (tx == tx_water) then 
 				love.graphics.setColor(255,255,255,255)
