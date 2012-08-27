@@ -55,8 +55,9 @@ function cItemCave:Init (area,tx,ty,level)
 	self.ox = -kTileSize
 	self.oy = -kTileSize
 	self.dungeon.theme_col = {0xff,0xff,0xff}
-		if (tx >= OVERWORLD_TX_DJUNGLE) then	self.dungeon.theme_col = {0x7c,0xd2,0x56}
-	elseif (tx >= OVERWORLD_TX_GRASS) then		self.dungeon.theme_col = {0xdf,0xa3,0x39}
+		--~ if (tx >= OVERWORLD_TX_DJUNGLE) then	self.dungeon.theme_col = {0x7c,0xd2,0x56}
+		if (tx >= OVERWORLD_TX_DJUNGLE) then	self.dungeon.theme_col = {0xff,0xff,0xff}
+	elseif (tx >= OVERWORLD_TX_GRASS) then		self.dungeon.theme_col = {0xff,0xc3,0x59}
 	elseif (tx >= OVERWORLD_TX_SAND) then		self.dungeon.theme_col = {0xed,0xe0,0xa4}
 	end
 end
