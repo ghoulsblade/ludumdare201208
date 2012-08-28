@@ -2,6 +2,11 @@
 -- ***** ***** ***** ***** ***** cMobBase
 cMobBase = CreateClass()
 
+function cMobBase:CheckMaxCamDist () 
+	return	abs(gScreenMiddleX - self.x) > MOBILE_ACTIVITY_MAX_CAM_DIST or 
+			abs(gScreenMiddleY - self.y) > MOBILE_ACTIVITY_MAX_CAM_DIST
+end
+
 function cMobBase:Init (area,img,tx,ty,att,def) 
 	local e = kTileSize
 	local ox,oy = kTileSize/2, kTileSize/2
@@ -96,6 +101,8 @@ function cMobBase:VelStep (dt)
 end
 
 function cMobBase:Step (dt) 
+	if (self:CheckMaxCamDist()) then return end
+	gMobsStepped = gMobsStepped + 1
 	self:VelStep(dt)
 end
 
@@ -150,6 +157,8 @@ end
 
 function cMobBase:Draw (camx,camy) 
 	if (self.dead) then return end
+	if (self:CheckMaxCamDist()) then return end
+	gMobsDrawn = gMobsDrawn + 1
 	local ox,oy = -kTileSize/2, -kTileSize/2
 	local x,y = floor(self.x+ox-camx),floor(self.y+oy-camy)
 	love.graphics.draw(img_shadow,x,y - (self.shadow_off or 0))
@@ -273,8 +282,10 @@ cMobEnemy = CreateClass(cMobBase)
 function cMobEnemy:Init (...) cMobBase.Init(self,...) self.is_enemy = true end
 
 function cMobEnemy:Step (dt)
-	self:VelStep(dt)
+	if (self:CheckMaxCamDist()) then return end
 	if (self.dead) then return end
+	gMobsStepped = gMobsStepped + 1
+	self:VelStep(dt)
 	self.walking = false
 	if (gPlayer.dead) then return end
 	local bCanStillWalk = true 
@@ -310,6 +321,8 @@ function cMobPlayer:AutoAttack () -- swing wildly and always, even if not in ran
 end
 
 function cMobPlayer:NotifyDeath (attacker) gRepawnTime = gCurTime + PLAYER_RESPAWN_DELAY  end
+
+function cMobPlayer:CheckMaxCamDist () end -- disabled
 
 -- ***** ***** ***** ***** ***** enemies
 

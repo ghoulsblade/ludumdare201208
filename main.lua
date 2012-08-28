@@ -57,6 +57,8 @@ OVERWORLD_TX_END_ABYSS		= OVERWORLD_TX_KING + ts*7
 OVERWORLD_TX_END_DECO		= OVERWORLD_TX_END_ABYSS
 OVERWORLD_ABYSS_DAMAGE		= 10
 
+MOBILE_ACTIVITY_MAX_CAM_DIST = (gScreenW or 800) * 2
+
 gEndText = {
 	[OVERWORLD_TX_KING + ts*1] = "The End."  ,
 	[OVERWORLD_TX_KING + ts*2] = "Really, that was it.",
@@ -90,6 +92,10 @@ if (DEBUG_CHEATS_ON) then
 	gEgg_Blue 		= 3
 	gEgg_Red  		= 5
 end
+
+
+gMobsDrawn = 0
+gMobsStepped = 0
 
 gPause = false
 
@@ -413,6 +419,8 @@ end
 
 function love.update( dt )
 	UpdateScreenSize()
+	gScreenMiddleX = gCamX + 0.5*gScreenW
+	gScreenMiddleY = gCamY + 0.5*gScreenH
 	
 	if (dt > DT_MAX) then dt = DT_MAX end
 	local t = love.timer.getTime()
@@ -441,6 +449,7 @@ function love.update( dt )
 			if (gKeyPressed[" "] or gMouseDownL) then gPlayer:AutoAttack() end
 		end
 	
+		gMobsStepped = 0
 		for o,_ in pairs(gCurArea.items) do o:Step(dt) end
 		for o,_ in pairs(gCurArea.mobiles) do o:Step(dt) end
 		gPlayer:Step(dt)
@@ -460,9 +469,12 @@ function love.draw()
 	
 	local camx = floor(gCamX)
 	local camy = floor(gCamY)
+	gMobsDrawn = 0
 	for o,_ in pairs(gCurArea.items) do o:Draw(camx,camy) end
 	for o,_ in pairs(gCurArea.mobiles) do o:Draw(camx,camy) end
 	gPlayer:Draw(gCamX,gCamY)
+	
+	--~ print("mobs drawn/stepped",gMobsDrawn,gMobsStepped)
 	
 	gCurArea:Draw_Fore()
 	
