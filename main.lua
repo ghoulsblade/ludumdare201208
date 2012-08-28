@@ -34,6 +34,7 @@ DUNGEON_ROOM_MAXR = 4
 DUNGEON_GRID_SIZE = 3+2*DUNGEON_ROOM_MAXR
 DEBUG_CHEATS_ON = false
 if (arg and arg[2] == "-cheat") then DEBUG_CHEATS_ON = true end
+--~ DEBUG_CHEATS_ON = true
 
 VALUE_ICON_SWORD_1 = 1
 VALUE_ICON_SWORD_2 = 3*VALUE_ICON_SWORD_1
@@ -364,8 +365,8 @@ function love.keypressed( key, unicode )
     if (key == "escape") then os.exit(0) end
 	if (gTitleScreen) then return StartGame() end
     if (key == "f1") then print("player pos",floor(gPlayer.x/kTileSize),floor(gPlayer.y/kTileSize)) end
-    if (key == "p") then gPause = not gPause end
-    if (key == "l") then gPlayer.x = OVERWORLD_TX_KING * kTileSize end
+    if (key == "p" and DEBUG_CHEATS_ON) then gPause = not gPause end
+    if (key == "l" and DEBUG_CHEATS_ON) then gPlayer.x = OVERWORLD_TX_KING * kTileSize end
     if (key == "m" and gMusicSrc) then 
 		gMusicSrc:setVolume(0)
 		gMusicSrc:stop()

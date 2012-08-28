@@ -126,6 +126,7 @@ function cAreaOverworld:Draw_Back ()
 		local y = gScreenH / 2
 		if (x < gScreenW) then
 			local s = gFontScale
+			if (love.web) then txt = string.lower(txt) end
 			love.graphics.print(txt,x,y,0,s,s)
 		end
 	end
