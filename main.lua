@@ -1,4 +1,5 @@
 -- ludumdare 2012-08 ghoulsblade generogue
+-- ludumdare 2012-08 ghoulsblade generogue
 
 love.filesystem.load("lib.oop.lua")()
 love.filesystem.load("lib.mobiles.lua")()
@@ -32,7 +33,7 @@ DUNGEON_ROOM_MINR = 2
 DUNGEON_ROOM_MAXR = 4
 DUNGEON_GRID_SIZE = 3+2*DUNGEON_ROOM_MAXR
 DEBUG_CHEATS_ON = false
---~ DEBUG_CHEATS_ON = true
+if (arg and arg[2] == "-cheat") then DEBUG_CHEATS_ON = true end
 
 VALUE_ICON_SWORD_1 = 1
 VALUE_ICON_SWORD_2 = 3*VALUE_ICON_SWORD_1
@@ -44,10 +45,24 @@ VALUE_ICON_SHIELD_2 = 3*VALUE_ICON_SHIELD_1
 VALUE_ICON_SHIELD_3 = 3*VALUE_ICON_SHIELD_2
 VALUE_ICON_SHIELD_4 = 3*VALUE_ICON_SHIELD_3
 
-OVERWORLD_TX_SAND		= -2
-OVERWORLD_TX_GRASS		= 1*25 + 2
-OVERWORLD_TX_DJUNGLE	= 2*25 + 2
-OVERWORLD_TX_END		= 4*25 + 2
+local ts = 15
+
+OVERWORLD_TX_SAND			= -2
+OVERWORLD_TX_GRASS			= 1*25 + 2
+OVERWORLD_TX_DJUNGLE		= 2*25 + 2
+OVERWORLD_TX_END_DUNGEONS	= 4*25 + 2
+OVERWORLD_TX_KING			= OVERWORLD_TX_END_DUNGEONS + 15
+OVERWORLD_TX_END_ABYSS		= OVERWORLD_TX_KING + ts*7
+OVERWORLD_TX_END_DECO		= OVERWORLD_TX_END_ABYSS
+
+gEndText = {
+	[OVERWORLD_TX_KING + ts*1] = "The End."  ,
+	[OVERWORLD_TX_KING + ts*2] = "Really, that was it.",
+	[OVERWORLD_TX_KING + ts*3] = "...",
+	[OVERWORLD_TX_KING + ts*4] = "Ende. Fin. Final. Fine.",
+	[OVERWORLD_TX_KING + ts*5] = "...",
+	[OVERWORLD_TX_KING + ts*6] = "you asked for it, go ahead...",
+}
 
 OVERWORLD_NUM_DECO = 200
 DUNGEON_NUM_DECO_PER_ROOM = 5
@@ -195,11 +210,13 @@ function love.load()
 		{min_level=  6 , max_level = 99 , crew = {cMobSpiderBlack,cMobSpider}},
 		{min_level= 10 , max_level = 99 , crew = {cMobSpiderBlack,cMobSpider}},
 		{min_level= 15 , max_level = 99 , crew = {cMobHumanoidRed,cMobHumanoidBlue}},
+		{min_level= 20 , max_level = 99 , crew = {cMobHumanoidRed,cMobHumanoidBlue}},
 	}
 	
 	function GetLevelAttDef_Red  (level) return 2*ceil(level/2),1*level end
 	function GetLevelAttDef_Blue (level) return 1*ceil(level/2),2*level end
 	function SpawnOverworldMobs (area)
+		gScreenH = max(gScreenH,5) -- just to make sure webplayer doesnt mess this up
 		for k,o in ipairs(gRoomCrew) do 
 			local level =  o.min_level
 			local tx = level * 5 + 1
@@ -209,14 +226,14 @@ function love.load()
 			if (level > 10) then num = 4 end
 			if (level > 15) then num = 5 end
 			for i=1,num do 
-				if (eclass_red ) then eclass_red:New( area,nil, tx+randirange(0,5),randirange(0,gScreenH / kTileSize - 1), GetLevelAttDef_Red(level)) end
-				if (eclass_blue) then eclass_blue:New(area,nil, tx+randirange(0,5),randirange(0,gScreenH / kTileSize - 1), GetLevelAttDef_Blue(level)) end
+				if (eclass_red ) then eclass_red:New( area,nil, tx+randirange(0,5),randirange(1,gScreenH / kTileSize - 2), GetLevelAttDef_Red(level)) end
+				if (eclass_blue) then eclass_blue:New(area,nil, tx+randirange(0,5),randirange(1,gScreenH / kTileSize - 2), GetLevelAttDef_Blue(level)) end
 			end
 		end
 		
 		local level = 50
-		local tx = 25 * 5
-		cMobKing:New(area,nil, tx+randirange(0,5),randirange(0,gScreenH / kTileSize - 1), GetLevelAttDef_Blue(level))
+		local tx = OVERWORLD_TX_KING
+		cMobKing:New(area,nil, tx+randirange(0,5),randirange(1,gScreenH / kTileSize - 2), GetLevelAttDef_Blue(level))
 	end
 	
 	function GetRandomEnemyClassForLevel (level) 
@@ -348,6 +365,7 @@ function love.keypressed( key, unicode )
 	if (gTitleScreen) then return StartGame() end
     if (key == "f1") then print("player pos",floor(gPlayer.x/kTileSize),floor(gPlayer.y/kTileSize)) end
     if (key == "p") then gPause = not gPause end
+    if (key == "l") then gPlayer.x = OVERWORLD_TX_KING * kTileSize end
     if (key == "m" and gMusicSrc) then 
 		gMusicSrc:setVolume(0)
 		gMusicSrc:stop()

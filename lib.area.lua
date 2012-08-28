@@ -73,7 +73,7 @@ function cAreaOverworld:Init ()
 	
 	-- generate a "few"
 	local maxlevel = 0
-	for tx=0,OVERWORLD_TX_END do
+	for tx=0,OVERWORLD_TX_END_DUNGEONS do
 		local i = tx
 		if (i >= 0) then
 			local level = floor(i/5)
@@ -88,7 +88,7 @@ function cAreaOverworld:Init ()
 	-- deco
 	local e = kTileSize
 	for i=1,OVERWORLD_NUM_DECO do 
-		local x = randirange(0,e*OVERWORLD_TX_END + 25*e)
+		local x = randirange(0,e*OVERWORLD_TX_END_DECO)
 		local y = randirange(0,gScreenH)
 		local img
 			if (x >= e*OVERWORLD_TX_DJUNGLE	) then	img = randarr(imgarr_deco_djungle) 
@@ -111,6 +111,7 @@ function cAreaOverworld:Draw_Back ()
 		if (tx >= OVERWORLD_TX_SAND) then tile = img_tile_sand end
 		if (tx >= OVERWORLD_TX_GRASS) then tile = img_tile_grass end
 		if (tx >= OVERWORLD_TX_DJUNGLE) then tile = img_tile_djungle end
+		if (tx >= OVERWORLD_TX_END_ABYSS) then tile = img_tile_black end
 		for ty = tymin,tymax do 
 			love.graphics.draw(tile, e*tx-camx,e*ty-camy)
 		end
@@ -118,6 +119,16 @@ function cAreaOverworld:Draw_Back ()
 	
 	-- deco
 	self:DrawDeco()
+	
+	-- end text
+	for tx,txt in pairs(gEndText) do 
+		local x = tx*e - camx
+		local y = gScreenH / 2
+		if (x < gScreenW) then
+			local s = gFontScale
+			love.graphics.print(txt,x,y,0,s,s)
+		end
+	end
 	
 	-- rolling waves
 	local tx_water = OVERWORLD_TX_SAND
