@@ -111,9 +111,11 @@ function love.load()
 	img_mob_player		= myimg("data/mob-player.png"		)
 	cMobHumanoidRed.img_default = img_mob_att
 	cMobHumanoidBlue.img_default = img_mob_def
+	cMobKing.img_default = img_mob_def
 	
 	img_part_face_grr	= myimg("data/part-face-grr.png"	)
 	img_part_face_oh	= myimg("data/part-face-oh.png"		)
+	img_crown			= myimg("data/crown.png"			)
 	img_part_legs_l_st	= myimg("data/part-legs-l-st.png"	)
 	img_part_legs_l_w1	= myimg("data/part-legs-l-w1.png"	)
 	img_part_legs_l_w2	= myimg("data/part-legs-l-w2.png"	)
@@ -191,6 +193,7 @@ function love.load()
 		{min_level=  1 , max_level =  4 , crew = {cMobCrab,cMobCrabBlack}},
 		{min_level=  3 , max_level = 99 , crew = {cMobBatHell,cMobBat}},
 		{min_level=  6 , max_level = 99 , crew = {cMobSpiderBlack,cMobSpider}},
+		{min_level= 10 , max_level = 99 , crew = {cMobSpiderBlack,cMobSpider}},
 		{min_level= 15 , max_level = 99 , crew = {cMobHumanoidRed,cMobHumanoidBlue}},
 	}
 	
@@ -206,10 +209,14 @@ function love.load()
 			if (level > 10) then num = 4 end
 			if (level > 15) then num = 5 end
 			for i=1,num do 
-				eclass_red:New( area,nil, tx+randirange(0,5),randirange(0,gScreenH / kTileSize - 1), GetLevelAttDef_Red(level))
-				eclass_blue:New(area,nil, tx+randirange(0,5),randirange(0,gScreenH / kTileSize - 1), GetLevelAttDef_Blue(level))
+				if (eclass_red ) then eclass_red:New( area,nil, tx+randirange(0,5),randirange(0,gScreenH / kTileSize - 1), GetLevelAttDef_Red(level)) end
+				if (eclass_blue) then eclass_blue:New(area,nil, tx+randirange(0,5),randirange(0,gScreenH / kTileSize - 1), GetLevelAttDef_Blue(level)) end
 			end
 		end
+		
+		local level = 50
+		local tx = 25 * 5
+		cMobKing:New(area,nil, tx+randirange(0,5),randirange(0,gScreenH / kTileSize - 1), GetLevelAttDef_Blue(level))
 	end
 	
 	function GetRandomEnemyClassForLevel (level) 

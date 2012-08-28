@@ -121,6 +121,7 @@ function cMobBase:EnvDamage (dmg,dx,dy)
 end
 
 function cMobBase:TakeDamage (dmg,attacker) 
+	if (DEBUG_CHEATS_ON and gKeyPressed["k"] and self ~= gPlayer) then self.def = self.def - dmg * 10 end
 	if (not DEBUG_CHEATS_ON) then self.def = self.def - dmg end
 	if (self.def <= 0) then
 		self:Die(self)
@@ -194,6 +195,7 @@ function cMobBase:Draw (camx,camy)
 		
 		love.graphics.draw(self.img,x,breathe_y1)
 		love.graphics.draw(self.img_face,x,breathe_y1)
+		if (self.crown) then love.graphics.draw(img_crown,x,breathe_y1) end
 		
 		
 		if (self.left) then
@@ -312,6 +314,9 @@ function cMobPlayer:NotifyDeath (attacker) gRepawnTime = gCurTime + PLAYER_RESPA
 
 cMobHumanoidRed		= CreateClass(cMobEnemy)
 cMobHumanoidBlue	= CreateClass(cMobEnemy)
+cMobKing			= CreateClass(cMobEnemy)
+cMobKing.crown = true
+function cMobKing:NotifyDeath (attacker) gPlayer.crown = true end
 
 cMobSimpleEnemy	= CreateClass(cMobEnemy)
 cMobSimpleEnemy.simple = true
