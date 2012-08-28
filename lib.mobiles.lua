@@ -81,11 +81,12 @@ function cMobBase:SetNewPos (nx,ny)
 	self.y = ny
 end
 	
-function cMobBase:AddHitVel (dx,dy) 
+function cMobBase:AddHitVel (dx,dy,push_factor) 
 	local d = math.sqrt(dx*dx+dy*dy)
 	if (d <= 0) then return end
-	self.vx = self.vx + VEL_HIT*dx/d
-	self.vy = self.vy + VEL_HIT*dy/d
+	push_factor = push_factor or 1
+	self.vx = self.vx + push_factor * VEL_HIT*dx/d
+	self.vy = self.vy + push_factor * VEL_HIT*dy/d
 end
 
 function cMobBase:VelStep (dt) 
@@ -115,14 +116,14 @@ function cMobBase:Attack (mob)
 end
 
 -- environment, e.g. water
-function cMobBase:EnvDamage (dmg,dx,dy) 
-	self:AddHitVel(dx,dy)
-	self:TakeDamage(dmg,self)
+function cMobBase:EnvDamage (dmg,dx,dy,push_factor) 
+	self:AddHitVel(dx,dy,push_factor)
+	self:TakeDamage(dmg,nil,true)
 end
 
-function cMobBase:TakeDamage (dmg,attacker) 
+function cMobBase:TakeDamage (dmg,attacker,bIsEnvironment) 
 	if (DEBUG_CHEATS_ON and gKeyPressed["k"] and self ~= gPlayer) then self.def = self.def - dmg * 10 end
-	if (not DEBUG_CHEATS_ON) then self.def = self.def - dmg end
+	if ((not DEBUG_CHEATS_ON) or bIsEnvironment) then self.def = self.def - dmg end
 	if (self.def <= 0) then
 		self:Die(self)
 	else

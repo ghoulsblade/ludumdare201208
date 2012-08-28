@@ -162,6 +162,7 @@ end
 function cAreaOverworld:Update (dt)
 	if (not gPlayer.dead) then self:MoveCamToPlayer() end
 	if (gPlayer.x < (OVERWORLD_TX_SAND-2)*kTileSize) then gPlayer:EnvDamage(1,1,0) end
+	if (gPlayer.x > (OVERWORLD_TX_END_ABYSS)*kTileSize) then gPlayer:EnvDamage(OVERWORLD_ABYSS_DAMAGE,-1,0,10) end
 end
 
 -- ***** ***** ***** ***** ***** cAreaDungeon

@@ -55,6 +55,7 @@ OVERWORLD_TX_END_DUNGEONS	= 4*25 + 2
 OVERWORLD_TX_KING			= OVERWORLD_TX_END_DUNGEONS + 15
 OVERWORLD_TX_END_ABYSS		= OVERWORLD_TX_KING + ts*7
 OVERWORLD_TX_END_DECO		= OVERWORLD_TX_END_ABYSS
+OVERWORLD_ABYSS_DAMAGE		= 10
 
 gEndText = {
 	[OVERWORLD_TX_KING + ts*1] = "The End."  ,
@@ -367,6 +368,7 @@ function love.keypressed( key, unicode )
     if (key == "f1") then print("player pos",floor(gPlayer.x/kTileSize),floor(gPlayer.y/kTileSize)) end
     if (key == "p" and DEBUG_CHEATS_ON) then gPause = not gPause end
     if (key == "l" and DEBUG_CHEATS_ON) then gPlayer.x = OVERWORLD_TX_KING * kTileSize end
+    if (key == "n" and DEBUG_CHEATS_ON) then gPlayer.x = (OVERWORLD_TX_END_ABYSS - 5) * kTileSize end
     if (key == "m" and gMusicSrc) then 
 		gMusicSrc:setVolume(0)
 		gMusicSrc:stop()
